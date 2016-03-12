@@ -3,13 +3,13 @@
 /**
  * Author: Taufik Nurrohman
  * URL: http://latitudu.com
- * Version: 1.0.0
+ * Version: 1.0.1
  */
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
     // version
-    const version = '1.0.0';
+    const version = '1.0.1';
 
     // self-closing HTML tags
     public $element_suffix = ' />';
@@ -92,7 +92,9 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             if(strpos($url, '//') === 0 && strpos($url, '//' . $host) !== 0) {
                 $internal = false;
             }
-            $data['element']['attributes'] = array_merge($this->{$internal ? 'links_attr' : 'links_external_attr'}, $data['element']['attributes']);
+            $attrs = $this->links_attr;
+            if( ! $internal) $attrs = array_merge($attrs, $this->links_external_attr);
+            $data['element']['attributes'] = array_merge($attrs, $data['element']['attributes']);
         }
         return $data;
     }
@@ -119,7 +121,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     // `~~~ .php html` → `<pre><code class="php language-html">`
     // `~~~ {.php #foo}` → `<pre><code id="foo" class="php">`
     protected function blockFencedCode($line) {
-        if(preg_match('/^['.$line['text'][0].']{3,}[ ]*(' . $this->regexAttribute . '+|\{' . $this->regexAttribute . '+\})?[ ]*$/', $line['text'], $matches)) {
+        $s = '(?:[#.]?[-_\w]+[ ]*)+';
+        if(preg_match('/^['.$line['text'][0].']{3,}[ ]*(' . $s . '|\{' . $s . '\})?[ ]*$/', $line['text'], $matches)) {
             $element = array(
                 'name' => 'code',
                 'text' => ""
@@ -179,12 +182,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     // ~
-    protected function blockTable($line, array $block = null) {
-        if($block = parent::blockTable($line, $block)) {
+    private function __doTable($line, $block, $fn, $i) {
+        if($block = call_user_func('parent::' . $fn, $line, $block)) {
             $block['element']['attributes'][is_int($this->table_class) ? 'border' : 'class'] = $this->table_class;
             if( ! $this->table_align_class) return $block;
-            if(isset($block['element']['text'][0]['text'])) {
-                foreach($block['element']['text'][0]['text'] as $k => &$v) {
+            if(isset($block['element']['text'][$i]['text'])) {
+                foreach($block['element']['text'][$i]['text'] as $k => &$v) {
                     if(isset($v['text'])) {
                         foreach($v['text'] as $kk => &$vv) {
                             $align = isset($block['alignments'][$kk]) ? sprintf($this->table_align_class, $block['alignments'][$kk]) : null;
@@ -198,21 +201,13 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     // ~
+    protected function blockTable($line, array $block = null) {
+        return $this->__doTable($line, $block, __FUNCTION__, 0);
+    }
+
+    // ~
     protected function blockTableContinue($line, array $block) {
-        if($block = parent::blockTableContinue($line, $block)) {
-            if( ! $this->table_align_class) return $block;
-            if(isset($block['element']['text'][1]['text'])) {
-                foreach($block['element']['text'][1]['text'] as $k => &$v) {
-                    if(isset($v['text'])) {
-                        foreach($v['text'] as $kk => &$vv) {
-                            $align = isset($block['alignments'][$kk]) ? sprintf($this->table_align_class, $block['alignments'][$kk]) : null;
-                            $vv['attributes'] = array('class' => $align);
-                        }
-                    }
-                }
-            }
-        }
-        return $block;
+        return $this->__doTable($line, $block, __FUNCTION__, 1);
     }
 
     // ~
@@ -308,8 +303,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     // ~
-    protected function blockCodeComplete($block) {
-        if($data = parent::blockCodeComplete($block)) {
+    private function __doBlockCode($block, $fn) {
+        if($data = call_user_func('parent::' . $fn, $block)) {
             if( ! $this->code_block_text) return $data;
             if(is_callable($this->code_text)) {
                 $data['element']['text']['text'] = call_user_func($this->code_block_text, $data);
@@ -318,22 +313,16 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             }
         }
         return $data;
+    }
+
+    // ~
+    protected function blockCodeComplete($block) {
+        return $this->__doBlockCode($block, __FUNCTION__);
     }
 
     // ~
     protected function blockFencedCodeComplete($block) {
-        if($data = parent::blockFencedCodeComplete($block)) {
-            if( ! $this->code_block_text) return $data;
-            if(is_callable($this->code_text)) {
-                $data['element']['text']['text'] = call_user_func($this->code_block_text, $data);
-            } else {
-                $data['element']['text']['text'] = sprintf($this->code_block_text, $data['element']['text']['text']);
-            }
-        }
-        return $data;
+        return $this->__doBlockCode($block, __FUNCTION__);
     }
-
-    // ~
-    protected $regexAttribute = '(?:[#.]?[-_\w]+[ ]*)';
 
 }

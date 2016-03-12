@@ -59,7 +59,7 @@ $parser->links = array(
 #### Automatic `rel="nofollow"` Attribute on External Links
 
 ~~~ .php
-// custom internal link attributes
+// custom link attributes
 $parser->links_attr = array();
 
 // custom external link attributes
