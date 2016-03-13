@@ -3,13 +3,14 @@
 /**
  * Author: Taufik Nurrohman
  * URL: http://latitudu.com
- * Version: 1.0.1
+ * Version: 1.0.2
  */
 
+// <https://github.com/tovic/parsedown-extra-plugin>
 class ParsedownExtraPlugin extends ParsedownExtra {
 
     // version
-    const version = '1.0.1';
+    const version = '1.0.2';
 
     // self-closing HTML tags
     public $element_suffix = ' />';
@@ -25,6 +26,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     // automatic external link attributes
     public $links_external_attr = array();
+
+    // automatic image attributes
+    public $images_attr = array();
+
+    // automatic external image attributes
+    public $images_external_attr = array();
 
     // custom code class for class name without dot prefix
     public $code_class = 'language-%s';
@@ -85,7 +92,6 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     // Check for external links ...
     private function __doLink($excerpt, $fn) {
         if($data = call_user_func('parent::' . $fn, $excerpt)) {
-            if($data['element']['name'] !== 'a') return $data;
             $url = $data['element']['attributes']['href'];
             $host = $_SERVER['HTTP_HOST'];
             $internal = $url === "" || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '//' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || strpos($url, '://') === false;
@@ -114,6 +120,19 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $this->__doLink($excerpt, __FUNCTION__);
     }
 
+    // ~
+    protected function inlineImage($excerpt) {
+        $l = $this->links_attr;
+        $ll = $this->links_external_attr;
+        $this->links_attr = $this->images_attr;
+        $this->links_external_attr = $this->images_external_attr;
+        $data = parent::inlineImage($excerpt);
+        $this->links_attr = $l;
+        $this->links_external_attr = $ll;
+        unset($l, $ll);
+        return $data;
+    }
+
     // `~~~ php` → `<pre><code class="language-php">`
     // `~~~ php html` → `<pre><code class="language-php language-html">`
     // `~~~ .php` → `<pre><code class="php">`
@@ -130,8 +149,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $attrs = array();
             if(isset($matches[1])) {
                 if($matches[1][0] === '{' && substr($matches[1], -1) === '}') {
-                    $text = str_replace(array('#', '.'), array(' #', ' .'), trim($matches[1], '{}'));
-                    $attrs = $this->parseAttributeData($text);
+                    $attrs = $this->parseAttributeData(trim($matches[1], '{}'));
                 } else {
                     if(is_callable($this->code_class)) {
                         $attrs['class'] = call_user_func($this->code_class, $matches[1]);
@@ -306,7 +324,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     private function __doBlockCode($block, $fn) {
         if($data = call_user_func('parent::' . $fn, $block)) {
             if( ! $this->code_block_text) return $data;
-            if(is_callable($this->code_text)) {
+            if(is_callable($this->code_block_text)) {
                 $data['element']['text']['text'] = call_user_func($this->code_block_text, $data);
             } else {
                 $data['element']['text']['text'] = sprintf($this->code_block_text, $data['element']['text']['text']);
@@ -323,6 +341,21 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     // ~
     protected function blockFencedCodeComplete($block) {
         return $this->__doBlockCode($block, __FUNCTION__);
+    }
+
+    // Allow compact attributes ...
+    protected function parseAttributeData($text) {
+        $text = str_replace(array('#', '.'), array(' #', ' .'), $text);
+        return parent::parseAttributeData($text);
+    }
+
+    // Allow empty abbreviations ...
+    protected function blockAbbreviation($line) {
+        if(preg_match('/^\*\[(.+?)\]:[ ]*$/', $line['text'], $matches)) {
+            $this->DefinitionData['Abbreviation'][$matches[1]] = null;
+            return array('hidden' => true);
+        }
+        return parent::blockAbbreviation($line);
     }
 
 }
