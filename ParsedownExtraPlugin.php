@@ -3,13 +3,14 @@
 /**
  * Author: Taufik Nurrohman
  * URL: http://latitudu.com
- * Version: 1.0.0
+ * Version: 1.0.2
  */
 
+// <https://github.com/tovic/parsedown-extra-plugin>
 class ParsedownExtraPlugin extends ParsedownExtra {
 
     // version
-    const version = '1.0.0';
+    const version = '1.0.2';
 
     // self-closing HTML tags
     public $element_suffix = ' />';
@@ -25,6 +26,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     // automatic external link attributes
     public $links_external_attr = array();
+
+    // automatic image attributes
+    public $images_attr = array();
+
+    // automatic external image attributes
+    public $images_external_attr = array();
 
     // custom code class for class name without dot prefix
     public $code_class = 'language-%s';
@@ -85,14 +92,15 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     // Check for external links ...
     private function __doLink($excerpt, $fn) {
         if($data = call_user_func('parent::' . $fn, $excerpt)) {
-            if($data['element']['name'] !== 'a') return $data;
             $url = $data['element']['attributes']['href'];
             $host = $_SERVER['HTTP_HOST'];
             $internal = $url === "" || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '//' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || strpos($url, '://') === false;
             if(strpos($url, '//') === 0 && strpos($url, '//' . $host) !== 0) {
                 $internal = false;
             }
-            $data['element']['attributes'] = array_merge($this->{$internal ? 'links_attr' : 'links_external_attr'}, $data['element']['attributes']);
+            $attrs = $this->links_attr;
+            if( ! $internal) $attrs = array_merge($attrs, $this->links_external_attr);
+            $data['element']['attributes'] = array_merge($attrs, $data['element']['attributes']);
         }
         return $data;
     }
@@ -112,6 +120,19 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $this->__doLink($excerpt, __FUNCTION__);
     }
 
+    // ~
+    protected function inlineImage($excerpt) {
+        $links_attr = $this->links_attr;
+        $links_external_attr = $this->links_external_attr;
+        $this->links_attr = $this->images_attr;
+        $this->links_external_attr = $this->images_external_attr;
+        $data = parent::inlineImage($excerpt);
+        $this->links_attr = $links_attr;
+        $this->links_external_attr = $links_external_attr;
+        unset($links_attr, $links_external_attr);
+        return $data;
+    }
+
     // `~~~ php` → `<pre><code class="language-php">`
     // `~~~ php html` → `<pre><code class="language-php language-html">`
     // `~~~ .php` → `<pre><code class="php">`
@@ -119,7 +140,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     // `~~~ .php html` → `<pre><code class="php language-html">`
     // `~~~ {.php #foo}` → `<pre><code id="foo" class="php">`
     protected function blockFencedCode($line) {
-        if(preg_match('/^['.$line['text'][0].']{3,}[ ]*(' . $this->regexAttribute . '+|\{' . $this->regexAttribute . '+\})?[ ]*$/', $line['text'], $matches)) {
+        $s = '(?:[#.]?[-_\w]+[ ]*)+';
+        if(preg_match('/^['.$line['text'][0].']{3,}[ ]*(' . $s . '|\{' . $s . '\})?[ ]*$/', $line['text'], $matches)) {
             $element = array(
                 'name' => 'code',
                 'text' => ""
@@ -127,8 +149,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $attrs = array();
             if(isset($matches[1])) {
                 if($matches[1][0] === '{' && substr($matches[1], -1) === '}') {
-                    $text = str_replace(array('#', '.'), array(' #', ' .'), trim($matches[1], '{}'));
-                    $attrs = $this->parseAttributeData($text);
+                    $attrs = $this->parseAttributeData(trim($matches[1], '{}'));
                 } else {
                     if(is_callable($this->code_class)) {
                         $attrs['class'] = call_user_func($this->code_class, $matches[1]);
@@ -179,12 +200,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     // ~
-    protected function blockTable($line, array $block = null) {
-        if($block = parent::blockTable($line, $block)) {
+    private function __doTable($line, $block, $fn, $i) {
+        if($block = call_user_func('parent::' . $fn, $line, $block)) {
             $block['element']['attributes'][is_int($this->table_class) ? 'border' : 'class'] = $this->table_class;
             if( ! $this->table_align_class) return $block;
-            if(isset($block['element']['text'][0]['text'])) {
-                foreach($block['element']['text'][0]['text'] as $k => &$v) {
+            if(isset($block['element']['text'][$i]['text'])) {
+                foreach($block['element']['text'][$i]['text'] as $k => &$v) {
                     if(isset($v['text'])) {
                         foreach($v['text'] as $kk => &$vv) {
                             $align = isset($block['alignments'][$kk]) ? sprintf($this->table_align_class, $block['alignments'][$kk]) : null;
@@ -198,21 +219,13 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     // ~
+    protected function blockTable($line, array $block = null) {
+        return $this->__doTable($line, $block, __FUNCTION__, 0);
+    }
+
+    // ~
     protected function blockTableContinue($line, array $block) {
-        if($block = parent::blockTableContinue($line, $block)) {
-            if( ! $this->table_align_class) return $block;
-            if(isset($block['element']['text'][1]['text'])) {
-                foreach($block['element']['text'][1]['text'] as $k => &$v) {
-                    if(isset($v['text'])) {
-                        foreach($v['text'] as $kk => &$vv) {
-                            $align = isset($block['alignments'][$kk]) ? sprintf($this->table_align_class, $block['alignments'][$kk]) : null;
-                            $vv['attributes'] = array('class' => $align);
-                        }
-                    }
-                }
-            }
-        }
-        return $block;
+        return $this->__doTable($line, $block, __FUNCTION__, 1);
     }
 
     // ~
@@ -245,7 +258,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             );
             return array(
                 'extent' => strlen($matches[0]),
-                'element' => $element,
+                'element' => $element
             );
         }
     }
@@ -308,32 +321,41 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     // ~
-    protected function blockCodeComplete($block) {
-        if($data = parent::blockCodeComplete($block)) {
+    private function __doBlockCode($block, $fn) {
+        if($data = call_user_func('parent::' . $fn, $block)) {
             if( ! $this->code_block_text) return $data;
-            if(is_callable($this->code_text)) {
+            if(is_callable($this->code_block_text)) {
                 $data['element']['text']['text'] = call_user_func($this->code_block_text, $data);
             } else {
                 $data['element']['text']['text'] = sprintf($this->code_block_text, $data['element']['text']['text']);
             }
         }
         return $data;
+    }
+
+    // ~
+    protected function blockCodeComplete($block) {
+        return $this->__doBlockCode($block, __FUNCTION__);
     }
 
     // ~
     protected function blockFencedCodeComplete($block) {
-        if($data = parent::blockFencedCodeComplete($block)) {
-            if( ! $this->code_block_text) return $data;
-            if(is_callable($this->code_text)) {
-                $data['element']['text']['text'] = call_user_func($this->code_block_text, $data);
-            } else {
-                $data['element']['text']['text'] = sprintf($this->code_block_text, $data['element']['text']['text']);
-            }
-        }
-        return $data;
+        return $this->__doBlockCode($block, __FUNCTION__);
     }
 
-    // ~
-    protected $regexAttribute = '(?:[#.]?[-_\w]+[ ]*)';
+    // Allow compact attributes ...
+    protected function parseAttributeData($text) {
+        $text = str_replace(array('#', '.'), array(' #', ' .'), $text);
+        return parent::parseAttributeData($text);
+    }
+
+    // Allow empty abbreviations ...
+    protected function blockAbbreviation($line) {
+        if(preg_match('/^\*\[(.+?)\]:[ ]*$/', $line['text'], $matches)) {
+            $this->DefinitionData['Abbreviation'][$matches[1]] = null;
+            return array('hidden' => true);
+        }
+        return parent::blockAbbreviation($line);
+    }
 
 }
