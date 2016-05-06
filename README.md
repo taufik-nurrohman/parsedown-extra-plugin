@@ -89,12 +89,12 @@ $parser->code_block_text = '<span class="my-code-block">%s</span>';
 ~~~
 
 ~~~ .php
-$parser->code_text = function($data) {
-    return do_syntax_highlighter($data['element']['text']);
+$parser->code_text = function($text) {
+    return do_syntax_highlighter($text);
 };
 
-$parser->code_block_text = function($data) {
-    return do_syntax_highlighter($data['element']['text']);
+$parser->code_block_text = function($text) {
+    return do_syntax_highlighter($text);
 };
 ~~~
 
@@ -152,11 +152,35 @@ $parser->footnote_back_link_class = 'footnote-backref';
 $parser->footnote_link_text = '[%s]';
 ~~~
 
+~~~ .php
+$parser->footnote_link_text = function($text) {
+    return '[' . $text . ']';
+};
+~~~
+
 #### Custom Footnote Back Link Text
 
 ~~~ .php
 $parser->footnote_back_link_text = '<i class="icon icon-back"></i>';
 ~~~
+
+#### Advance Attribute Parser
+
+ - `{#foo}` → `<tag id="foo">`
+ - `{#foo#bar}` → `<tag id="bar">`
+ - `{.foo}` → `<tag class="foo">`
+ - `{.foo.bar}` → `<tag class="foo bar">`
+ - `{#foo.bar.baz}` → `<tag id="foo" class="bar baz">`
+ - `{#foo .bar .baz}` → `<tag id="foo" class="bar baz">` (white-space before `#` and `.` becomes optional in my extension)
+ - `{foo="bar"}` → `<tag foo="bar">`
+ - `{foo="bar baz"}` → `<tag foo="bar baz">`
+ - `{foo='bar'}` → `<tag foo="bar">`
+ - `{foo='bar baz'}` → `<tag foo="bar baz">`
+ - `{foo=bar}` → `<tag foo="bar">`
+ - `{foo=}` → `<tag foo="">`
+ - `{foo}` → `<tag foo="foo">`
+ - `{foo=bar baz}` → `<tag foo="bar" baz="baz">`
+ - `{#a#b.c.d e="f" g="h i" j='k' l='m n' o=p q= r s t="u#v.w.x y=z"}` → `<tag id="b" class="c d" e="f" g="h i" j="k" l="m n" o="p" q="" r="r" s="s" t="u#v.w.x y=z">`
 
 #### Code Block Class Without `language-` Prefix
 
