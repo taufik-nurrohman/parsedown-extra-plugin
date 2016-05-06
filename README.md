@@ -101,7 +101,7 @@ $parser->code_block_text = function($text) {
 #### Put `<code>` Attributes on `<pre>` Element
 
 ~~~ .php
-$parser->code_block_attr_on_pre = true;
+$parser->code_block_attr_on_parent = true;
 ~~~
 
 #### Custom Table Class
