@@ -67,6 +67,14 @@ $parser->links_external_attr = array(
     'rel' => 'nofollow',
     'target' => '_blank'
 );
+
+// custom image attributes
+$parser->images_attr = array(
+    'alt' => ""
+);
+
+// custom external image attributes
+$parser->images_external_attr = array();
 ~~~
 
 #### Custom Code Class Format

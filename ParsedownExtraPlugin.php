@@ -3,14 +3,14 @@
 /**
  * Author: Taufik Nurrohman
  * URL: http://latitudu.com
- * Version: 1.1.0
+ * Version: 1.1.1
  */
 
 // <https://github.com/tovic/parsedown-extra-plugin>
 class ParsedownExtraPlugin extends ParsedownExtra {
 
     // version
-    const version = '1.1.0';
+    const version = '1.1.1';
 
     // self-closing HTML tags
     public $element_suffix = ' />';
@@ -84,7 +84,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     protected function element(array $element) {
         $markup = parent::element($element);
         if( ! isset($element['text'])) {
-            return str_replace(' />$', $this->element_suffix, $markup . '$');
+            return str_replace(' />', $this->element_suffix, $markup);
         }
         return $markup;
     }
@@ -93,8 +93,14 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     private function __doLink($excerpt, $fn) {
         if($data = call_user_func('parent::' . $fn, $excerpt)) {
             $url = $data['element']['attributes']['href'];
-            $host = $_SERVER['HTTP_HOST'];
-            $in = $url === "" || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '//' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || strpos($url, '://') === false;
+            if(isset($_SERVER['HTTP_HOST'])) {
+                $host = $_SERVER['HTTP_HOST'];
+            } else if(isset($_SERVER['SERVER_NAME'])) {
+                $host = $_SERVER['SERVER_NAME'];
+            } else {
+                $host = "";
+            }
+            $in = $url === "" || $host === "" || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '//' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || strpos($url, '://') === false;
             if(strpos($url, '//') === 0 && strpos($url, '//' . $host) !== 0) $in = false;
             $attrs = $this->links_attr;
             if( ! $in) $attrs = array_merge($attrs, $this->links_external_attr);
