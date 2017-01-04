@@ -1,6 +1,6 @@
 ## Extension for [Parsedown Extra](http://parsedown.org/extra)
 
-> Configurable Markdown → HTML converter with Parsedown Extra.
+> Configurable Markdown to HTML converter with Parsedown Extra.
 
 ### Installation
 
