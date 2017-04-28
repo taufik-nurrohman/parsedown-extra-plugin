@@ -41,10 +41,6 @@ $parser->abbreviations = array(
 
 ~~~ .php
 $parser->links = array(
-    'latitudu' => array(
-        'url' => 'http://latitudu.com',
-        'title' => 'Life is Be U to Full'
-    ),
     'mecha-cms' => array(
         'url' => 'http://mecha-cms.com',
         'title' => 'Mecha CMS'
