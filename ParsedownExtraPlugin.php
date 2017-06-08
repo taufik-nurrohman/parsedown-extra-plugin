@@ -3,14 +3,14 @@
 /**
  * Author: Taufik Nurrohman
  * URL: https://github.com/tovic
- * Version: 1.1.2
+ * Version: 1.1.3
  */
 
 // <https://github.com/tovic/parsedown-extra-plugin>
 class ParsedownExtraPlugin extends ParsedownExtra {
 
     // version
-    const version = '1.1.2';
+    const version = '1.1.3';
 
     // self-closing HTML tags
     public $element_suffix = ' />';
@@ -103,8 +103,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $in = !$url || !$host || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '//' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || strpos($url, '://') === false;
             if (strpos($url, '//') === 0 && strpos($url, '//' . $host) !== 0) $in = false;
             $attrs = $this->links_attr;
-            if (!$in) $attrs = array_merge($attrs, $this->links_external_attr);
-            $data['element']['attributes'] = array_merge($attrs, $data['element']['attributes']);
+            if (!$in) $attrs = array_replace($attrs, $this->links_external_attr);
+            $data['element']['attributes'] = array_replace($attrs, $data['element']['attributes']);
         }
         return $data;
     }
@@ -192,12 +192,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!isset($this->DefinitionData['Abbreviation'])) {
             $this->DefinitionData['Abbreviation'] = $this->abbreviations;
         } else {
-            $this->DefinitionData['Abbreviation'] = array_merge($this->abbreviations, $this->DefinitionData['Abbreviation']);
+            $this->DefinitionData['Abbreviation'] = array_replace($this->abbreviations, $this->DefinitionData['Abbreviation']);
         }
         if (!isset($this->DefinitionData['Reference'])) {
             $this->DefinitionData['Reference'] = $this->links;
         } else {
-            $this->DefinitionData['Reference'] = array_merge($this->links, $this->DefinitionData['Reference']);
+            $this->DefinitionData['Reference'] = array_replace($this->links, $this->DefinitionData['Reference']);
         }
         return str_replace('<br />', '<br' . $this->element_suffix, parent::unmarkedText($text));
     }
