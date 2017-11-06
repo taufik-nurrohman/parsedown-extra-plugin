@@ -16,13 +16,13 @@
   - [Custom Table Alignment Class](#custom-table-alignment-class)
   - [Custom Footnote ID Format](#custom-footnote-id-format)
   - [Custom Footnote Back ID Format](#custom-footnote-back-id-format)
-- [Custom Footnote Class](#custom-footnote-class)
-- [Custom Footnote Link Class](#custom-footnote-link-class)
-- [Custom Footnote Back Link Class](#custom-footnote-back-link-class)
-- [Custom Footnote Link Text](#custom-footnote-link-text)
-- [Custom Footnote Back Link Text](#custom-footnote-back-link-text)
-- [Advance Attribute Parser](#advance-attribute-parser)
-- [Code Block Class Without `language-` Prefix](#code-block-class-without-language--prefix)
+  - [Custom Footnote Class](#custom-footnote-class)
+  - [Custom Footnote Link Class](#custom-footnote-link-class)
+  - [Custom Footnote Back Link Class](#custom-footnote-back-link-class)
+  - [Custom Footnote Link Text](#custom-footnote-link-text)
+  - [Custom Footnote Back Link Text](#custom-footnote-back-link-text)
+  - [Advance Attribute Parser](#advance-attribute-parser)
+  - [Code Block Class Without `language-` Prefix](#code-block-class-without-language--prefix)
 
 
 ### Installation
