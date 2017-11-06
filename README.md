@@ -1,4 +1,4 @@
-## Extension for [Parsedown Extra](http://parsedown.org/extra)
+## Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
 
 > Configurable Markdown to HTML converter with Parsedown Extra.
 
