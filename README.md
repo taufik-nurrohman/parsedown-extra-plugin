@@ -7,7 +7,7 @@
 - [2. Features](#features)
   - [HTML or XHTML](#html-or-xhtml)
   - [Predefined Abbreviations](#predefined-links)
-  - [Predefined Links](#)
+  - [Predefined Links](#predefined-links)
   - [Automatic `rel="nofollow"` Attribute on External Links](#automatic-relnofollow-attribute-on-external-links)
   - [Custom Code Class Format](#custom-code-class-format)
   - [Custom Code Text Format](#custom-code-text-format)
