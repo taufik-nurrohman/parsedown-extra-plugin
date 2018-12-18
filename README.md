@@ -1,9 +1,11 @@
-## Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
+Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
+==========================================================================
 
 > Configurable Markdown to HTML converter with Parsedown Extra.
 
 
-### Table of Content
+Table of Content
+----------------
 
 - [1. Installation](#installation)
 - [2. Features](#features)
@@ -27,7 +29,8 @@
   - [Code Block Class Without `language-` Prefix](#code-block-class-without-language--prefix)
 
 
-### Installation
+Installation
+------------
 
 Include `ParsedownExtraPlugin.php` just after the `Parsedown.php` and `ParsedownExtra.php`:
 
@@ -45,15 +48,16 @@ echo $parser->text('# Header {.sth}');
 ~~~
 
 
-### Features
+Features
+--------
 
-#### HTML or XHTML
+### HTML or XHTML
 
 ~~~ .php
 $parser->element_suffix = '>'; // HTML5
 ~~~
 
-#### Predefined Abbreviations
+### Predefined Abbreviations
 
 ~~~ .php
 $parser->abbreviations = array(
@@ -63,7 +67,7 @@ $parser->abbreviations = array(
 );
 ~~~
 
-#### Predefined Links
+### Predefined Links
 
 ~~~ .php
 $parser->links = array(
@@ -78,7 +82,7 @@ $parser->links = array(
 );
 ~~~
 
-#### Automatic `rel="nofollow"` Attribute on External Links
+### Automatic `rel="nofollow"` Attribute on External Links
 
 ~~~ .php
 // custom link attributes
@@ -99,7 +103,7 @@ $parser->images_attr = array(
 $parser->images_external_attr = array();
 ~~~
 
-#### Custom Code Class Format
+### Custom Code Class Format
 
 ~~~ .php
 $parser->code_class = 'language-%s';
@@ -111,7 +115,7 @@ $parser->code_class = function($text) {
 };
 ~~~
 
-#### Custom Code Text Format
+### Custom Code Text Format
 
 ~~~ .php
 $parser->code_text = '<span class="my-code">%s</span>';
@@ -128,55 +132,55 @@ $parser->code_block_text = function($text) {
 };
 ~~~
 
-#### Put `<code>` Attributes on `<pre>` Element
+### Put `<code>` Attributes on `<pre>` Element
 
 ~~~ .php
 $parser->code_block_attr_on_parent = true;
 ~~~
 
-#### Custom Table Class
+### Custom Table Class
 
 ~~~ .php
 $parser->table_class = 'table-bordered';
 ~~~
 
-#### Custom Table Alignment Class
+### Custom Table Alignment Class
 
 ~~~ .php
 $parser->table_align_class = 'text-%s';
 ~~~
 
-#### Custom Footnote ID Format
+### Custom Footnote ID Format
 
 ~~~ .php
 $parser->footnote_link_id = 'cite_note:%s';
 ~~~
 
-#### Custom Footnote Back ID Format
+### Custom Footnote Back ID Format
 
 ~~~ .php
 $parser->footnote_back_link_id = 'cite_ref:%s-%s';
 ~~~
 
-#### Custom Footnote Class
+### Custom Footnote Class
 
 ~~~ .php
 $parser->footnote_class = 'footnotes';
 ~~~
 
-#### Custom Footnote Link Class
+### Custom Footnote Link Class
 
 ~~~ .php
 $parser->footnote_link_class = 'footnote-ref';
 ~~~
 
-#### Custom Footnote Back Link Class
+### Custom Footnote Back Link Class
 
 ~~~ .php
 $parser->footnote_back_link_class = 'footnote-backref';
 ~~~
 
-#### Custom Footnote Link Text
+### Custom Footnote Link Text
 
 ~~~ .php
 $parser->footnote_link_text = '[%s]';
@@ -188,13 +192,13 @@ $parser->footnote_link_text = function($text) {
 };
 ~~~
 
-#### Custom Footnote Back Link Text
+### Custom Footnote Back Link Text
 
 ~~~ .php
 $parser->footnote_back_link_text = '<i class="icon icon-back"></i>';
 ~~~
 
-#### Advance Attribute Parser
+### Advance Attribute Parser
 
  - `{#foo}` → `<tag id="foo">`
  - `{#foo#bar}` → `<tag id="bar">`
@@ -212,7 +216,7 @@ $parser->footnote_back_link_text = '<i class="icon icon-back"></i>';
  - `{foo=bar baz}` → `<tag foo="bar" baz="baz">`
  - `{#a#b.c.d e="f" g="h i" j='k' l='m n' o=p q= r s t="u#v.w.x y=z"}` → `<tag id="b" class="c d" e="f" g="h i" j="k" l="m n" o="p" q="" r="r" s="s" t="u#v.w.x y=z">`
 
-#### Code Block Class Without `language-` Prefix
+### Code Block Class Without `language-` Prefix
 
 Dot prefix in class name are now becomes optional, custom attributes syntax also acceptable:
 
