@@ -100,7 +100,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             } else {
                 $host = "";
             }
-            $in = !$url || !$host || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || strpos($url, '://') === false;
+            $in = !$url || !$host || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || (strpos($url, '://') === false && strpos($url, 'data:') === false);
             if (strpos($url, '//') === 0 && strpos($url, '//' . $host) !== 0) $in = false;
             $attrs = $this->links_attr;
             if (!$in) $attrs = array_replace($attrs, $this->links_external_attr);
