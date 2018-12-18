@@ -3,14 +3,14 @@
 /**
  * Author: Taufik Nurrohman
  * URL: https://github.com/tovic
- * Version: 1.1.5
+ * Version: 1.1.6
  */
 
 // <https://github.com/tovic/parsedown-extra-plugin>
 class ParsedownExtraPlugin extends ParsedownExtra {
 
     // version
-    const version = '1.1.5';
+    const version = '1.1.6';
 
     // self-closing HTML tags
     public $element_suffix = ' />';
