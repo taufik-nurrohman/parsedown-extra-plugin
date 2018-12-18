@@ -1,0 +1,20 @@
+{
+  "name": "tovic/parsedown-extra-plugin",
+  "description": "Configurable Markdown to HTML converter with Parsedown Extra.",
+  "keywords": ["markdown", "markdown extra", "parser", "parsedown"],
+  "homepage": "https://github.com/tovic/parsedown-extra-plugin",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Taufik Nurrohman",
+      "homepage": "https://plus.google.com/+TaufikNurrohman"
+    }
+  ],
+  "require": {
+    "erusev/parsedown-extra": "~0.7"
+  },
+  "autoload": {
+    "psr-0": {"ParsedownExtraPlugin": ""}
+  }
+}

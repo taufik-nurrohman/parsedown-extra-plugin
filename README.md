@@ -1,6 +1,31 @@
-## Extension for [Parsedown Extra](http://parsedown.org/extra)
+## Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
 
 > Configurable Markdown to HTML converter with Parsedown Extra.
+
+
+### Table of Content
+
+- [1. Installation](#installation)
+- [2. Features](#features)
+  - [HTML or XHTML](#html-or-xhtml)
+  - [Predefined Abbreviations](#predefined-links)
+  - [Predefined Links](#predefined-links)
+  - [Automatic `rel="nofollow"` Attribute on External Links](#automatic-relnofollow-attribute-on-external-links)
+  - [Custom Code Class Format](#custom-code-class-format)
+  - [Custom Code Text Format](#custom-code-text-format)
+  - [Put `<code>` Attributes on `<pre>` Element](#put-code-attributes-on-pre-element)
+  - [Custom Table Class](#custom-table-class)
+  - [Custom Table Alignment Class](#custom-table-alignment-class)
+  - [Custom Footnote ID Format](#custom-footnote-id-format)
+  - [Custom Footnote Back ID Format](#custom-footnote-back-id-format)
+  - [Custom Footnote Class](#custom-footnote-class)
+  - [Custom Footnote Link Class](#custom-footnote-link-class)
+  - [Custom Footnote Back Link Class](#custom-footnote-back-link-class)
+  - [Custom Footnote Link Text](#custom-footnote-link-text)
+  - [Custom Footnote Back Link Text](#custom-footnote-back-link-text)
+  - [Advance Attribute Parser](#advance-attribute-parser)
+  - [Code Block Class Without `language-` Prefix](#code-block-class-without-language--prefix)
+
 
 ### Installation
 
@@ -18,6 +43,7 @@ $parser->code_class = 'lang-%s';
 
 echo $parser->text('# Header {.sth}');
 ~~~
+
 
 ### Features
 
