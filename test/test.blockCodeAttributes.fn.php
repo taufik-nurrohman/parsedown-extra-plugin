@@ -2,14 +2,28 @@
 
 $s = <<<S
 
-Lorem ipsum dolor sit amet. [^1]
+~~~
+<p>Lorem ipsum dolor sit amet.</p>
+~~~
 
-[^1]: Lorem ipsum dolor sit amet.
+```
+<p>Lorem ipsum dolor sit amet.</p>
+```
+
+~~~ html
+<p>Lorem ipsum dolor sit amet.</p>
+~~~
+
+``` html
+<p>Lorem ipsum dolor sit amet.</p>
+```
 
 S;
 
-$parser->footnote_link_text = function($text) {
-    return '[' . $text . ']';
+$parser->blockCodeAttributes = function($Attributes) {
+    if (isset($Attributes['class']) && $Attributes['class'] === 'language-html') {
+        return array('title' => 'Code Block');
+    }
 };
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';

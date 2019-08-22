@@ -8,7 +8,7 @@ Lorem ipsum [HTML][1] dolor [API][2] sit [PHP][wow] amet.
 
 S;
 
-$parser->links = array(
+$parser->referenceData = array(
     '2' => array(
         'url' => 'http://example.com/api',
         'title' => 'Application Programming Interface'
@@ -20,7 +20,7 @@ $parser->links = array(
 );
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlentities($s);
+echo htmlspecialchars($s);
 echo '</pre>';
 
 $ss = $parser->text($s);
@@ -30,5 +30,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

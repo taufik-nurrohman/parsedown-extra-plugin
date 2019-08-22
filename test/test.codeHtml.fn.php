@@ -2,17 +2,21 @@
 
 $s = <<<S
 
-Lorem ipsum HTML dolor API sit PHP amet.
+Lorem ipsum `dolor<br>sit` amet.
 
-*[HTML]: Hyper Text Markup Language
-*[PHP]:
+Foo bar `baz` qux.
 
 S;
 
-$parser->abbreviations = array('API' => 'Application Programming Interface');
+$parser->codeHtml = function($Html) {
+    if (strpos($Html, '&lt;') !== false) {
+        return '<mark>' . $Html . '</mark>';
+    }
+    return $Html;
+};
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlentities($s);
+echo htmlspecialchars($s);
 echo '</pre>';
 
 $ss = $parser->text($s);
@@ -22,5 +26,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

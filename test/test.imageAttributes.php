@@ -2,25 +2,23 @@
 
 $s = <<<S
 
-Lorem ipsum [HTML][1] dolor [API](http://example.com/api) sit [PHP][wow] amet.
+Lorem ipsum ![HTML Image][1] dolor ![API Image](http://example.com/api.jpg) sit ![PHP Image][wow] amet.
 
-Lorem ipsum dolor sit amet. <http://example.com>
-
-[1]: http://example.com/html
+[1]: http://example.com/html.jpg
 
 S;
 
-$parser->links = array(
+$parser->referenceData = array(
     'wow' => array(
-        'url' => 'http://example.com/php',
+        'url' => 'http://example.com/php.jpg',
         'title' => 'PHP: Hypertext Preprocessor'
     )
 );
 
-$parser->links_attr = array('class' => 'anchor');
+$parser->imageAttributes = array('loading' => 'lazy');
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlentities($s);
+echo htmlspecialchars($s);
 echo '</pre>';
 
 $ss = $parser->text($s);
@@ -30,5 +28,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

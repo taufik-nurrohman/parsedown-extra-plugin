@@ -2,15 +2,24 @@
 
 $s = <<<S
 
-Lorem ipsum dolor sit amet. [^1]
+Lorem ipsum [HTML][1] dolor [API](http://example.com/api) sit [PHP][wow] amet.
 
-[^1]: Lorem ipsum dolor sit amet.
+Lorem ipsum dolor sit amet. <http://example.com>
+
+Lorem ipsum dolor sit amet. http://example.com
+
+[1]: http://example.com/html
 
 S;
 
-$parser->footnote_link_text = function($text) {
-    return '[' . $text . ']';
-};
+$parser->referenceData = array(
+    'wow' => array(
+        'url' => 'http://example.com/php',
+        'title' => 'PHP: Hypertext Preprocessor'
+    )
+);
+
+$parser->linkAttributes = array('class' => 'anchor');
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo htmlspecialchars($s);

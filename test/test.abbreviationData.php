@@ -2,15 +2,14 @@
 
 $s = <<<S
 
-Lorem ipsum dolor sit amet. [^1]
+Lorem ipsum HTML dolor API sit PHP amet.
 
-[^1]: Lorem ipsum dolor sit amet.
+*[HTML]: Hyper Text Markup Language
+*[PHP]:
 
 S;
 
-$parser->footnote_link_text = function($text) {
-    return '[' . $text . ']';
-};
+$parser->abbreviationData = array('API' => 'Application Programming Interface');
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo htmlspecialchars($s);

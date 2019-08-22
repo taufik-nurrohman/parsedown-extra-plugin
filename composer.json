@@ -8,11 +8,11 @@
   "authors": [
     {
       "name": "Taufik Nurrohman",
-      "homepage": "https://plus.google.com/+TaufikNurrohman"
+      "homepage": "https://github.com/tovic/parsedown-extra-plugin"
     }
   ],
   "require": {
-    "erusev/parsedown-extra": "~0.7"
+    "erusev/parsedown-extra": "~0.8"
   },
   "autoload": {
     "psr-0": {"ParsedownExtraPlugin": ""}

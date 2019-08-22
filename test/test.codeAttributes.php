@@ -2,15 +2,13 @@
 
 $s = <<<S
 
-Lorem ipsum dolor sit amet. [^1]
+Lorem ipsum `dolor` sit amet.
 
-[^1]: Lorem ipsum dolor sit amet.
+Foo bar `baz` qux.
 
 S;
 
-$parser->footnote_link_text = function($text) {
-    return '[' . $text . ']';
-};
+$parser->codeAttributes = array('class' => 'code');
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo htmlspecialchars($s);

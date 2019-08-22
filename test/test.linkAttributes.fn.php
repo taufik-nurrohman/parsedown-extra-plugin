@@ -19,21 +19,23 @@ $s = <<<S
 
 ---
 
- - [foo](http://localhost/a)
- - [bar](http://localhost/a?bar)
- - [baz](http://localhost/a&qux)
- - [qux](http://localhost/a#yo)
+ - [foo](http://127.0.0.1/a)
+ - [bar](http://127.0.0.1/a?bar)
+ - [baz](http://127.0.0.1/a&qux)
+ - [qux](http://127.0.0.1/a#yo)
 
 ---
 
- - [foo](//localhost/a)
- - [bar](//localhost/a?bar)
- - [baz](//localhost/a&qux)
- - [qux](//localhost/a#yo)
+ - [foo](//127.0.0.1/a)
+ - [bar](//127.0.0.1/a?bar)
+ - [baz](//127.0.0.1/a&qux)
+ - [qux](//127.0.0.1/a#yo)
  
 ---
- 
+
  - [javascript](javascript:void(0))
+ - [data:text/html](data:text/html,<foo>bar</foo>)
+ - [data:text/base64](data:text/base64,asdf)
 
 ### External
 
@@ -58,10 +60,16 @@ $s = <<<S
 
 S;
 
-$parser->links_external_attr = array(
-    'rel' => 'nofollow',
-    'target' => '_blank'
-);
+$parser->linkAttributes = function($Attributes) {
+    if (isset($Attributes['href'])) {
+        if (ParsedownExtraPlugin::isExternalLink($Attributes['href'])) {
+            return array(
+                'rel' => 'nofollow',
+                'target' => '_blank'
+            );
+        }
+    }
+};
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo $s;
@@ -74,5 +82,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

@@ -2,28 +2,16 @@
 
 $s = <<<S
 
-~~~
-Lorem ipsum dolor sit amet.
-~~~
+Lorem ipsum `dolor<br>sit` amet.
 
-```
-Lorem ipsum dolor sit amet.
-```
-
-~~~ markdown
-Lorem ipsum dolor sit amet.
-~~~
-
-``` markdown
-Lorem ipsum dolor sit amet.
-```
+Foo bar `baz` qux.
 
 S;
 
-$parser->code_block_attr_on_parent = true;
+$parser->codeHtml = '<mark>%s</mark>';
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlentities($s);
+echo htmlspecialchars($s);
 echo '</pre>';
 
 $ss = $parser->text($s);
@@ -33,5 +21,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

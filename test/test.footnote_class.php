@@ -13,7 +13,7 @@ $parser->footnote_link_class = 'note';
 $parser->footnote_back_link_class = 'back';
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlentities($s);
+echo htmlspecialchars($s);
 echo '</pre>';
 
 $ss = $parser->text($s);
@@ -23,5 +23,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

@@ -2,234 +2,357 @@
 
 /**
  * Author: Taufik Nurrohman
- * URL: https://github.com/tovic
- * Version: 1.1.6
+ * URL: https://github.com/tovic/parsedown-extra-plugin
+ * Version: 1.2.0
  */
 
-// <https://github.com/tovic/parsedown-extra-plugin>
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    // version
-    const version = '1.1.6';
+    const version = '1.2.0';
 
-    // self-closing HTML tags
-    public $element_suffix = ' />';
 
-    // predefined abbreviations
-    public $abbreviations = array();
+    // Begin config
 
-    // predefined links URL and title
-    public $links = array();
+    public $abbreviationData = array();
 
-    // automatic link attributes
-    public $links_attr = array();
+    public $blockCodeAttributes = array();
 
-    // automatic external link attributes
-    public $links_external_attr = array();
+    public $blockCodeAttributesOnParent = false;
 
-    // automatic image attributes
-    public $images_attr = array();
+    public $blockCodeClassFormat = 'language-%s';
 
-    // automatic external image attributes
-    public $images_external_attr = array();
+    public $blockCodeHtml = null;
 
-    // custom code class for class name without dot prefix
-    public $code_class = 'language-%s';
+    public $codeAttributes = array();
 
-    // custom code text
-    public $code_text = null;
+    public $codeHtml = null;
 
-    // custom code block text
-    public $code_block_text = null;
+    public $footnoteAttributes = array();
 
-    // put `<code>` attributes on `<pre>` element?
-    public $code_block_attr_on_parent = false;
+    public $footnoteBackReferenceAttributes = array();
 
-    // custom table class or use `1` to add `border="1"` attribute
-    public $table_class = null;
+    public $footnoteBackReferenceHtml = '&#8617;';
 
-    // custom table alignment class
-    public $table_align_class = null;
+    public $footnoteReferenceAttributes = array();
 
-    // custom footnote ID format
-    public $footnote_link_id = 'fn:%s';
+    public $footnoteReferenceHtml = null;
 
-    // custom footnote back ID format
-    public $footnote_back_link_id = 'fnref%s:%s';
+    public $imageAttributes = array();
 
-    // custom footnote class
-    public $footnote_class = 'footnotes';
+    public $linkAttributes = array();
 
-    // custom footnote link class
-    public $footnote_link_class = 'footnote-ref';
+    public $referenceData = array();
 
-    // custom footnote back link class
-    public $footnote_back_link_class = 'footnote-backref';
+    public $tableAttributes = array();
 
-    // custom footnote link text
-    public $footnote_link_text = null;
+    public $tableColumnAttributes = array();
 
-    // custom footnote back link text
-    public $footnote_back_link_text = '&#8617;';
+    public $voidElementSuffix = ' />';
 
-    // ~
-    function __construct() {
-        if (parent::version < '0.7.0') {
-            throw new Exception('ParsedownExtraPlugin requires a later version of ParsedownExtra');
+    // End config
+
+
+    protected $regexAttribute = '(?:[#.][-\w:\\\]+[ ]*|[-\w:\\\]+(?:=(?:["\'][^\n]*?["\']|[^\s]+)?)?[ ]*)';
+
+    // Method aliases for every configuration property
+    public function __call($key, array $arguments = array()) {
+        $property = lcfirst(substr($key, 3));
+        if (strpos($key, 'set') === 0 && property_exists($this, $property)) {
+            $this->{$property} = $arguments[0];
+            return $this;
+        }
+        throw new Exception('Method ' . $key . ' does not exists.');
+    }
+
+    public function __construct() {
+        if (version_compare(parent::version, '0.8.0-beta-1') < 0) {
+            throw new Exception('ParsedownExtraPlugin requires a later version of Parsedown');
         }
         parent::__construct();
     }
 
-    // ~
-    protected function element(array $element) {
-        $markup = parent::element($element);
-        if (!isset($element['text'])) {
-            return str_replace(' />', $this->element_suffix, $markup);
-        }
-        return $markup;
-    }
-
-    // Check for external links ...
-    private function __doLink($excerpt, $fn) {
-        if ($data = call_user_func('parent::' . $fn, $excerpt)) {
-            $url = $data['element']['attributes']['href'];
-            if (isset($_SERVER['HTTP_HOST'])) {
-                $host = $_SERVER['HTTP_HOST'];
-            } else if (isset($_SERVER['SERVER_NAME'])) {
-                $host = $_SERVER['SERVER_NAME'];
-            } else {
-                $host = "";
-            }
-            $in = !$url || !$host || strpos($url, 'https://' . $host) === 0 || strpos($url, 'http://' . $host) === 0 || strpos($url, '/') === 0 || strpos($url, '?') === 0 || strpos($url, '#') === 0 || strpos($url, 'javascript:') === 0 || strpos($url, '.') === 0 || (strpos($url, '://') === false && strpos($url, 'data:') === false);
-            if (strpos($url, '//') === 0 && strpos($url, '//' . $host) !== 0) $in = false;
-            $attrs = $this->links_attr;
-            if (!$in) $attrs = array_replace($attrs, $this->links_external_attr);
-            $data['element']['attributes'] = array_replace($attrs, $data['element']['attributes']);
-        }
-        return $data;
-    }
-
-    // ~
-    protected function inlineLink($excerpt) {
-        return $this->__doLink($excerpt, __FUNCTION__);
-    }
-
-    // ~
-    protected function inlineUrl($excerpt) {
-        return $this->__doLink($excerpt, __FUNCTION__);
-    }
-
-    // ~
-    protected function inlineUrlTag($excerpt) {
-        return $this->__doLink($excerpt, __FUNCTION__);
-    }
-
-    // ~
-    protected function inlineImage($excerpt) {
-        $links_attr = $this->links_attr;
-        $links_external_attr = $this->links_external_attr;
-        $this->links_attr = $this->images_attr;
-        $this->links_external_attr = $this->images_external_attr;
-        $data = parent::inlineImage($excerpt);
-        $this->links_attr = $links_attr;
-        $this->links_external_attr = $links_external_attr;
-        unset($links_attr, $links_external_attr);
-        return $data;
-    }
-
-    // `~~~ php` → `<pre><code class="language-php">`
-    // `~~~ php html` → `<pre><code class="language-php language-html">`
-    // `~~~ .php` → `<pre><code class="php">`
-    // `~~~ .php.html` → `<pre><code class="php html">`
-    // `~~~ .php html` → `<pre><code class="php language-html">`
-    // `~~~ {.php #foo}` → `<pre><code id="foo" class="php">`
-    protected function blockFencedCode($line) {
-        if (preg_match('/^[' . $line['text'][0] . ']{3,}[ ]*((?:\.?[-\w]+[ ]*)+|\{' . $this->regexAttribute . '+\})?[ ]*$/', $line['text'], $m)) {
-            $element = array(
-                'name' => 'code',
-                'text' => ""
-            );
-            $attrs = array();
-            if (isset($m[1])) {
-                if ($m[1][0] === '{' && substr($m[1], -1) === '}') {
-                    $attrs = $this->parseAttributeData(substr(substr($m[1], 1), 0, -1));
-                } else {
-                    if (is_callable($this->code_class)) {
-                        $attrs['class'] = call_user_func($this->code_class, $m[1], $line, $m, $this);
-                    } else if ($this->code_class) {
-                        $class = "";
-                        foreach (explode(' ', $m[1]) as $k => $v) {
-                            if (!$v) continue;
-                            if (strpos($v, '.') !== 0) {
-                                $class .= ' ' . sprintf($this->code_class, $v);
-                            } else {
-                                $class .= str_replace('.', ' ', $v);
-                            }
-                        }
-                        $attrs['class'] = substr($class, 1);
-                    }
-                }
-            }
-            $block = array(
-                'char' => $line['text'][0],
-                'element' => array(
-                    'name' => 'pre',
-                    'handler' => 'element',
-                    'text' => $element
-                )
-            );
-            if (!$this->code_block_attr_on_parent) {
-                $block['element']['text']['attributes'] = $attrs;
-            } else {
-                $block['element']['attributes'] = $attrs;
-            }
-            return $block;
-        }
-    }
-
-    // ~
-    protected function unmarkedText($text) {
-        if (!isset($this->DefinitionData['Abbreviation'])) {
-            $this->DefinitionData['Abbreviation'] = $this->abbreviations;
+    private function doAttributes(&$Element, $Key, $Arguments = array()) {
+        $Attributes = isset($Element['attributes']) ? $Element['attributes'] : array();
+        if (is_callable($this->{$Key})) {
+            $Arguments = array_merge(array($Attributes, $Element), $Arguments);
+            $Attributes = array_replace($Attributes, (array) call_user_func_array($this->{$Key}, $Arguments));
         } else {
-            $this->DefinitionData['Abbreviation'] = array_replace($this->abbreviations, $this->DefinitionData['Abbreviation']);
+            $Attributes = array_replace($Attributes, (array) $this->{$Key});
         }
+        $Element['attributes'] = $Attributes;
+    }
+
+    private function doHtml(&$Element, $Key, $Escape = false, $Mode = 'text') {
+        $Attributes = isset($Element['attributes']) ? $Element['attributes'] : array();
+        $Html = isset($Element[$Mode]) ? $Element[$Mode] : "";
+        if ($Escape) {
+            $Html = self::escape($Html);
+        }
+        if (is_callable($this->{$Key})) {
+            $Element[$Mode] = call_user_func($this->{$Key}, $Html, $Attributes, $Element);
+        } else if (!empty($this->{$Key})) {
+            $Element[$Mode] = sprintf($this->{$Key}, $Html);
+        }
+    }
+
+    private function _setReferenceData() {
         if (!isset($this->DefinitionData['Reference'])) {
-            $this->DefinitionData['Reference'] = $this->links;
-        } else {
-            $this->DefinitionData['Reference'] = array_replace($this->links, $this->DefinitionData['Reference']);
+            $this->DefinitionData['Reference'] = $this->referenceData;
+        } else if (!empty($this->referenceData)) {
+            $this->DefinitionData['Reference'] = array_replace($this->referenceData, $this->DefinitionData['Reference']);
         }
-        return str_replace('<br />', '<br' . $this->element_suffix, parent::unmarkedText($text));
+        return $this;
     }
 
-    // ~
-    private function __doTable($line, $block, $fn, $i) {
-        if ($block = call_user_func('parent::' . $fn, $line, $block)) {
-            $block['element']['attributes'][is_int($this->table_class) ? 'border' : 'class'] = $this->table_class;
-            if (!$this->table_align_class) return $block;
-            if (isset($block['element']['text'][$i]['text'])) {
-                foreach ($block['element']['text'][$i]['text'] as $k => &$v) {
-                    if (isset($v['text'])) {
-                        foreach ($v['text'] as $kk => &$vv) {
-                            $align = isset($block['alignments'][$kk]) ? sprintf($this->table_align_class, $block['alignments'][$kk]) : null;
-                            $vv['attributes'] = array('class' => $align);
-                        }
-                    }
+    protected function blockAbbreviation($Line) {
+        // Allow empty abbreviations
+        if (preg_match('/^\*\[(.+?)\]:[ ]*$/', $Line['text'], $matches)) {
+            $this->DefinitionData['Abbreviation'][$matches[1]] = null;
+            return array('hidden' => true);
+        }
+        $Data = (array) $this->abbreviationData;
+        if (!isset($this->DefinitionData['Abbreviation'])) {
+            $this->DefinitionData['Abbreviation'] = $Data;
+        } else {
+            $this->DefinitionData['Abbreviation'] = array_replace($Data, $this->DefinitionData['Abbreviation']);
+        }
+        return parent::blockAbbreviation($Line);
+    }
+
+    protected function blockCodeComplete($Block) {
+        $this->doAttributes($Block['element']['element'], 'blockCodeAttributes');
+        $this->doHtml($Block['element']['element'], 'blockCodeHtml', true);
+        // Put code attributes on parent tag
+        if ($this->blockCodeAttributesOnParent) {
+            $Block['element']['attributes'] = $Block['element']['element']['attributes'];
+            unset($Block['element']['element']['attributes']);
+        }
+        $Block['element']['element']['rawHtml'] = $Block['element']['element']['text'];
+        $Block['element']['element']['allowRawHtmlInSafeMode'] = true;
+        unset($Block['element']['element']['text']);
+        return $Block;
+    }
+
+    protected function blockFencedCode($Line) {
+        // Re-enable the multiple class name feature
+        $Line['text'] = strtr(trim($Line['text']), array(
+            ' ' => "\x1A",
+            '.' => "\x1A."
+        ));
+        // Enable custom attribute syntax on code block
+        $Attributes = array();
+        if (strpos($Line['text'], '{') !== false && substr($Line['text'], -1) === '}') {
+            $Parts = explode('{', $Line['text'], 2);
+            $Attributes = $this->parseAttributeData(strtr(substr($Parts[1], 0, -1), "\x1A", ' '));
+            $Line['text'] = trim($Parts[0]);
+        }
+        if (!$Block = parent::blockFencedCode($Line)) {
+            return $Block;
+        }
+        if ($Attributes) {
+            $Block['element']['element']['attributes'] = $Attributes;
+        } else if (isset($Block['element']['element']['attributes']['class'])) {
+            $Classes = explode("\x1A", strtr($Block['element']['element']['attributes']['class'], ' ', "\x1A"));
+            // `~~~ php` → `<pre><code class="language-php">`
+            // `~~~ php html` → `<pre><code class="language-php language-html">`
+            // `~~~ .php` → `<pre><code class="php">`
+            // `~~~ .php.html` → `<pre><code class="php html">`
+            // `~~~ .php html` → `<pre><code class="php language-html">`
+            // `~~~ {.php #foo}` → `<pre><code id="foo" class="php">`
+            $Results = [];
+            foreach ($Classes as $Class) {
+                if ($Class === "" || $Class === str_replace('%s', "", $this->blockCodeClassFormat)) {
+                    continue;
+                }
+                if ($Class[0] === '.') {
+                    $Results[] = substr($Class, 1);
+                } else {
+                    $Results[] = sprintf($this->blockCodeClassFormat, $Class);
+                }
+            }
+            $Block['element']['element']['attributes']['class'] = implode(' ', array_unique($Results));
+        }
+        return $Block;
+    }
+
+    protected function blockFencedCodeComplete($Block) {
+        return $this->blockCodeComplete($Block);
+    }
+
+    protected function blockTableContinue($Line, array $Block) {
+        if (!$Block = parent::blockTableContinue($Line, $Block)) {
+            return $Block;
+        }
+        $Alignments = $Block['alignments'];
+        // `<thead>` or `<tbody>`
+        foreach ($Block['element']['elements'] as $Index0 => &$Element0) {
+            // `<tr>`
+            foreach ($Element0['elements'] as $Index1 => &$Element1) {
+                // `<th>` or `<td>`
+                foreach ($Element1['elements'] as $Index2 => &$Element2) {
+                    $this->doAttributes($Element2, 'tableColumnAttributes', array($Index2, $Alignments[$Index2]));
                 }
             }
         }
-        return $block;
+        return $Block;
     }
 
-    // ~
-    protected function blockTable($line, array $block = null) {
-        return $this->__doTable($line, $block, __FUNCTION__, 0);
+    protected function blockTableComplete($Block) {
+        $this->doAttributes($Block['element'], 'tableAttributes');
+        return $Block;
     }
 
-    // ~
-    protected function blockTableContinue($line, array $block) {
-        return $this->__doTable($line, $block, __FUNCTION__, 1);
+    protected function element(array $Element) {
+        if (!$Any = parent::element($Element)) {
+            return $Any;
+        }
+        if (substr($Any, -3) === ' />') {
+            if (is_callable($this->voidElementSuffix)) {
+                $Suffix = call_user_func($this->voidElementSuffix, isset($Element['attributes']) ? $Element['attributes'] : array(), $Element);
+            } else {
+                $Suffix = $this->voidElementSuffix;
+            }
+            $Any = substr_replace($Any, $Suffix, -3);
+        }
+        return $Any;
     }
+
+    protected function inlineCode($Excerpt) {
+        if (!$Inline = parent::inlineCode($Excerpt)) {
+            return $Inline;
+        }
+        $this->doAttributes($Inline['element'], 'codeAttributes');
+        $this->doHtml($Inline['element'], 'codeHtml', true);
+        $Inline['element']['rawHtml'] = $Inline['element']['text'];
+        $Inline['element']['allowRawHtmlInSafeMode'] = true;
+        unset($Inline['element']['text']);
+        return $Inline;
+    }
+
+    protected function inlineImage($Excerpt) {
+        $linkAttributes = $this->linkAttributes;
+        $this->linkAttributes = $this->imageAttributes;
+        $Inline = parent::inlineImage($Excerpt);
+        $this->linkAttributes = $linkAttributes;
+        unset($linkAttributes);
+        return $Inline;
+    }
+
+    protected function inlineLink($Excerpt) {
+        if (!$Inline = parent::inlineLink($Excerpt)) {
+            return $Inline;
+        }
+        $this->doAttributes($Inline['element'], 'linkAttributes');
+        $this->_setReferenceData();
+        return $Inline;
+    }
+
+    protected function inlineUrl($Excerpt) {
+        if (!$Inline = parent::inlineUrl($Excerpt)) {
+            return $Inline;
+        }
+        $this->doAttributes($Inline['element'], 'linkAttributes');
+        $this->_setReferenceData();
+        return $Inline;
+    }
+
+    protected function inlineUrlTag($Excerpt) {
+        if (!$Inline = parent::inlineUrlTag($Excerpt)) {
+            return $Inline;
+        }
+        $this->doAttributes($Inline['element'], 'linkAttributes');
+        $this->_setReferenceData();
+        return $Inline;
+    }
+
+    protected function parseAttributeData($attributeString) {
+        // Allow compact attributes
+        $attributeString = strtr($attributeString, array(
+            '#' => ' #',
+            '.' => ' .'
+        ));
+        if (strpos($attributeString, '="') !== false || strpos($attributeString, "='") !== false) {
+            $attributeString = preg_replace_callback('#([-\w]+=)(["\'])([^\n]*?)\2#', function($matches) {
+                $value = strtr($matches[3], array(
+                    ' #' => '#',
+                    ' .' => '.',
+                    ' ' => "\x1A"
+                ));
+                return $matches[1] . $matches[2] . $value . $matches[2];
+            }, $attributeString);
+        }
+        $Attributes = array();
+        foreach (explode(' ', $attributeString) as $v) {
+            if (!$v) {
+                continue;
+            }
+            // `{#foo}`
+            if ($v[0] === '#' && isset($v[1])) {
+                $Attributes['id'] = substr($v, 1);
+            // `{.foo}`
+            } else if ($v[0] === '.' && isset($v[1])) {
+                $Attributes['class'][] = substr($v, 1);
+            // ~
+            } else if (strpos($v, '=') !== false) {
+                $vv = explode('=', $v, 2);
+                // `{foo=}`
+                if ($vv[1] === "") {
+                    $Attributes[$vv[0]] = "";
+                // `{foo="bar baz"}`
+                // `{foo='bar baz'}`
+                } else if ($vv[1][0] === '"' && substr($vv[1], -1) === '"' || $vv[1][0] === "'" && substr($vv[1], -1) === "'") {
+                    $Attributes[$vv[0]] = stripslashes(strtr(substr(substr($vv[1], 1), 0, -1), "\x1A", ' '));
+                // `{foo=bar}`
+                } else {
+                    $Attributes[$vv[0]] = $vv[1];
+                }
+            // `{foo}`
+            } else {
+                $Attributes[$v] = $v;
+            }
+        }
+        if (isset($Attributes['class'])) {
+            $Attributes['class'] = implode(' ', array_unique($Attributes['class']));
+        }
+        return $Attributes;
+    }
+
+    static function isInternalLink($Link) {
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $Host = $_SERVER['HTTP_HOST'];
+        } else if (isset($_SERVER['SERVER_NAME'])) {
+            $Host = $_SERVER['SERVER_NAME'];
+        } else {
+            $Host = "";
+        }
+        $Internal = !$Link || // `<a href="">`
+                    strpos($Link, 'https://' . $Host) === 0 || // `<a href="https://127.0.0.1">`
+                    strpos($Link, 'http://' . $Host) === 0 || // `<a href="http://127.0.0.1">`
+                    strpos($Link, '/') === 0 || // `<a href="/foo/bar">`
+                    strpos($Link, '?') === 0 || // `<a href="?foo=bar">`
+                    strpos($Link, '#') === 0 || // `<a href="#foo">`
+                    strpos($Link, 'data:') === 0 || // `<a href="data:text/html,asdf">`
+                    strpos($Link, 'javascript:') === 0 || // `<a href="javascript:;">`
+                    strpos($Link, '.') === 0 || // `<a href="../foo/bar">`
+                    strpos($Link, '://') === false; // `<a href="foo/bar">`
+        if (strpos($Link, '//') === 0 && strpos($Link, '//' . $Host) !== 0) {
+            return false; // `<a href="//example.com">`
+        }
+        return $Internal;
+    }
+
+    static function isExternalLink($Link) {
+        return !self::isInternalLink($Link);
+    }
+
+}
+
+
+
+
+/*
+class ParsedownExtraPlugin extends ParsedownExtra {
+
 
     // ~
     protected function inlineFootnoteMarker($excerpt) {
@@ -290,16 +413,16 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $text = $data['text'];
             $text = parent::text($text);
             $numbers = range(1, $data['count']);
-            $markup = "";
+            $Data = "";
             foreach ($numbers as $number) {
-                $markup .= ' <a href="#' . sprintf($this->footnote_back_link_id, $number, $id) . '" rev="footnote" class="' . $this->footnote_back_link_class . '">' . $this->footnote_back_link_text . '</a>';
+                $Data .= ' <a href="#' . sprintf($this->footnote_back_link_id, $number, $id) . '" rev="footnote" class="' . $this->footnote_back_link_class . '">' . $this->footnote_back_link_text . '</a>';
             }
-            $markup = substr($markup, 1);
+            $Data = substr($Data, 1);
             if (substr($text, -4) === '</p>') {
-                $markup = '&#160;' . $markup;
-                $text = substr_replace($text, $markup . '</p>', -4);
+                $Data = '&#160;' . $Data;
+                $text = substr_replace($text, $Data . '</p>', -4);
             } else {
-                $text .= "\n" . '<p>' . $markup . '</p>';
+                $text .= "\n" . '<p>' . $Data . '</p>';
             }
             $element['text'][1]['text'][] = array(
                 'name' => 'li',
@@ -310,101 +433,5 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $element;
     }
 
-    // ~
-    protected function inlineCode($excerpt) {
-        if ($data = parent::inlineCode($excerpt)) {
-            if (is_callable($this->code_text)) {
-                $data['element']['text'] = call_user_func($this->code_text, $data['element']['text'], $data, $excerpt, $this);
-            } else if ($this->code_text) {
-                $data['element']['text'] = sprintf($this->code_text, $data['element']['text']);
-            }
-        }
-        return $data;
-    }
-
-    // ~
-    private function __doBlockCode($block, $fn) {
-        if ($data = call_user_func('parent::' . $fn, $block)) {
-            if (is_callable($this->code_block_text)) {
-                $data['element']['text']['text'] = call_user_func($this->code_block_text, $data['element']['text']['text'], $data, $block, $this);
-            } else if ($this->code_block_text) {
-                $data['element']['text']['text'] = sprintf($this->code_block_text, $data['element']['text']['text']);
-            }
-        }
-        return $data;
-    }
-
-    // ~
-    protected function blockCodeComplete($block) {
-        return $this->__doBlockCode($block, __FUNCTION__);
-    }
-
-    // ~
-    protected function blockFencedCodeComplete($block) {
-        return $this->__doBlockCode($block, __FUNCTION__);
-    }
-
-    // Advance parse attributes ...
-    protected function parseAttributeData($text) {
-        // Allow compact attributes ...
-        $text = str_replace(array('#', '.'), array(' #', ' .'), $text);
-        if (strpos($text, '="') !== false || strpos($text, '=\'') !== false) {
-            $text = preg_replace_callback('#([-\w]+=)(["\'])([^\n]*?)\2#', function($m) {
-                $s = str_replace(array(
-                    ' #',
-                    ' .',
-                    ' '
-                ), array(
-                    '#',
-                    '.',
-                    "\x1A"
-                ), $m[3]);
-                return $m[1] . $m[2] . $s . $m[2];
-            }, $text);
-        }
-        $attrs = array();
-        foreach (explode(' ', $text) as $v) {
-            if (!$v) continue;
-            // `{#foo}`
-            if ($v[0] === '#' && isset($v[1])) {
-                $attrs['id'] = substr($v, 1);
-            // `{.foo}`
-            } else if ($v[0] === '.' && isset($v[1])) {
-                $attrs['class'][] = substr($v, 1);
-            // ~
-            } else if (strpos($v, '=') !== false) {
-                $vv = explode('=', $v, 2);
-                // `{foo=}`
-                if ($vv[1] === "") {
-                    $attrs[$vv[0]] = "";
-                // `{foo="bar baz"}`
-                // `{foo='bar baz'}`
-                } else if ($vv[1][0] === '"' && substr($vv[1], -1) === '"' || $vv[1][0] === "'" && substr($vv[1], -1) === "'") {
-                    $attrs[$vv[0]] = str_replace("\x1A", ' ', substr(substr($vv[1], 1), 0, -1));
-                // `{foo=bar}`
-                } else {
-                    $attrs[$vv[0]] = $vv[1];
-                }
-            // `{foo}`
-            } else {
-                $attrs[$v] = $v;
-            }
-        }
-        if (isset($attrs['class'])) {
-            $attrs['class'] = implode(' ', $attrs['class']);
-        }
-        return $attrs;
-    }
-
-    protected $regexAttribute = '(?:[#.][-\w:\\\]+[ ]*|[-\w:\\\]+(?:=(?:["\'][^\n]*?["\']|[^\s]+)?)?[ ]*)';
-
-    // Allow empty abbreviations ...
-    protected function blockAbbreviation($line) {
-        if (preg_match('/^\*\[(.+?)\]:[ ]*$/', $line['text'], $m)) {
-            $this->DefinitionData['Abbreviation'][$m[1]] = null;
-            return array('hidden' => true);
-        }
-        return parent::blockAbbreviation($line);
-    }
-
 }
+*/

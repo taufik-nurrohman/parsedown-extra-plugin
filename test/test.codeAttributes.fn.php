@@ -2,17 +2,20 @@
 
 $s = <<<S
 
-foo | bar | baz
---- | --- | ---
-1   | 2   | 3
-4   | 5   | 6
+Lorem ipsum `dolor` sit amet.
+
+Foo bar `baz` qux.
 
 S;
 
-$parser->table_class = 'my-table';
+$parser->codeAttributes = function($Attributes, $Element) {
+    if ($Element['text'] === 'baz') {
+        return array('class' => 'code-baz');
+    }
+};
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlentities($s);
+echo htmlspecialchars($s);
 echo '</pre>';
 
 $ss = $parser->text($s);
@@ -22,5 +25,5 @@ echo $ss;
 echo '</div>';
 
 echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlentities($ss);
+echo htmlspecialchars($ss);
 echo '</pre>';

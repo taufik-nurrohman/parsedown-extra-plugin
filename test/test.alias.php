@@ -2,15 +2,24 @@
 
 $s = <<<S
 
+Page Title
+----------
+
+Page content.
+
+ - List item 1
+ - List item 2
+ - List item 3
+
+---
+
 Lorem ipsum dolor sit amet. [^1]
 
-[^1]: Lorem ipsum dolor sit amet.
+[^1]: Foo bar baz qux.
 
 S;
 
-$parser->footnote_link_text = function($text) {
-    return '[' . $text . ']';
-};
+$parser->setVoidElementSuffix('>'); // Alias for `$parser->voidElementSuffix = '>'`
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo htmlspecialchars($s);
