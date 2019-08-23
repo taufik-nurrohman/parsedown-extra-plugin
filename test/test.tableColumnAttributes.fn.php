@@ -9,9 +9,9 @@ foo | bar | baz | qux
 
 S;
 
-$parser->tableColumnAttributes = function($Attributes, $Element, $Index, $Align) {
+$parser->tableColumnAttributes = function($Text, $Attributes, $Element, $Align, $Index) {
     return array(
-        'style' => null, // Remove inline styles
+        'style' => null, # Remove inline styles
         'class' => $Align ? 'text-' . $Align : null
     );
 };

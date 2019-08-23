@@ -60,9 +60,9 @@ $s = <<<S
 
 S;
 
-$parser->linkAttributes = function($Attributes) {
+$parser->linkAttributes = function($Text, $Attributes, $Element, $IsInternal) {
     if (isset($Attributes['href'])) {
-        if (ParsedownExtraPlugin::isExternalLink($Attributes['href'])) {
+        if (!$IsInternal) {
             return array(
                 'rel' => 'nofollow',
                 'target' => '_blank'

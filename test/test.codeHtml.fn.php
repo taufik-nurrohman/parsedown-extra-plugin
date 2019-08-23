@@ -8,11 +8,11 @@ Foo bar `baz` qux.
 
 S;
 
-$parser->codeHtml = function($Html) {
-    if (strpos($Html, '&lt;') !== false) {
-        return '<mark>' . $Html . '</mark>';
+$parser->codeHtml = function($Text) {
+    if (strpos($Text, '&lt;') !== false) {
+        return '<mark>' . $Text . '</mark>';
     }
-    return $Html;
+    return $Text;
 };
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';

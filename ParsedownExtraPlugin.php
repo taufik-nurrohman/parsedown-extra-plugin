@@ -1,17 +1,27 @@
 <?php
 
-/**
- * Author: Taufik Nurrohman
- * URL: https://github.com/tovic/parsedown-extra-plugin
- * Version: 1.2.0
- */
+#
+#
+# Parsedown Extra Plugin
+# https://github.com/tovic/parsedown-extra-plugin
+#
+# (c) Emanuil Rusev
+# http://erusev.com
+#
+# (c) Taufik Nurrohman
+# https://mecha-cms.com
+#
+# For the full license information, view the LICENSE file that was distributed
+# with this source code.
+#
+#
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.2.0';
+    const version = '1.2.0-beta-1';
 
 
-    // Begin config
+    # config
 
     public $abbreviationData = array();
 
@@ -29,13 +39,17 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $footnoteAttributes = array();
 
+    public $footnoteBackLinkAttributes = array();
+
+    public $footnoteBackLinkHtml = '&#8617;';
+
     public $footnoteBackReferenceAttributes = array();
 
-    public $footnoteBackReferenceHtml = '&#8617;';
+    public $footnoteLinkAttributes = array();
+
+    public $footnoteLinkHtml = null;
 
     public $footnoteReferenceAttributes = array();
-
-    public $footnoteReferenceHtml = null;
 
     public $imageAttributes = array();
 
@@ -49,12 +63,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $voidElementSuffix = ' />';
 
-    // End config
+    # config
 
 
     protected $regexAttribute = '(?:[#.][-\w:\\\]+[ ]*|[-\w:\\\]+(?:=(?:["\'][^\n]*?["\']|[^\s]+)?)?[ ]*)';
 
-    // Method aliases for every configuration property
+    # Method aliases for every configuration property
     public function __call($key, array $arguments = array()) {
         $property = lcfirst(substr($key, 3));
         if (strpos($key, 'set') === 0 && property_exists($this, $property)) {
@@ -71,58 +85,20 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         parent::__construct();
     }
 
-    private function doAttributes(&$Element, $Key, $Arguments = array()) {
-        $Attributes = isset($Element['attributes']) ? $Element['attributes'] : array();
-        if (is_callable($this->{$Key})) {
-            $Arguments = array_merge(array($Attributes, $Element), $Arguments);
-            $Attributes = array_replace($Attributes, (array) call_user_func_array($this->{$Key}, $Arguments));
-        } else {
-            $Attributes = array_replace($Attributes, (array) $this->{$Key});
-        }
-        $Element['attributes'] = $Attributes;
-    }
-
-    private function doHtml(&$Element, $Key, $Escape = false, $Mode = 'text') {
-        $Attributes = isset($Element['attributes']) ? $Element['attributes'] : array();
-        $Html = isset($Element[$Mode]) ? $Element[$Mode] : "";
-        if ($Escape) {
-            $Html = self::escape($Html);
-        }
-        if (is_callable($this->{$Key})) {
-            $Element[$Mode] = call_user_func($this->{$Key}, $Html, $Attributes, $Element);
-        } else if (!empty($this->{$Key})) {
-            $Element[$Mode] = sprintf($this->{$Key}, $Html);
-        }
-    }
-
-    private function _setReferenceData() {
-        if (!isset($this->DefinitionData['Reference'])) {
-            $this->DefinitionData['Reference'] = $this->referenceData;
-        } else if (!empty($this->referenceData)) {
-            $this->DefinitionData['Reference'] = array_replace($this->referenceData, $this->DefinitionData['Reference']);
-        }
-        return $this;
-    }
-
     protected function blockAbbreviation($Line) {
-        // Allow empty abbreviations
+        # Allow empty abbreviations
         if (preg_match('/^\*\[(.+?)\]:[ ]*$/', $Line['text'], $matches)) {
             $this->DefinitionData['Abbreviation'][$matches[1]] = null;
             return array('hidden' => true);
         }
-        $Data = (array) $this->abbreviationData;
-        if (!isset($this->DefinitionData['Abbreviation'])) {
-            $this->DefinitionData['Abbreviation'] = $Data;
-        } else {
-            $this->DefinitionData['Abbreviation'] = array_replace($Data, $this->DefinitionData['Abbreviation']);
-        }
+        self::doSetData($this->DefinitionData['Abbreviation'], $this->abbreviationData);
         return parent::blockAbbreviation($Line);
     }
 
     protected function blockCodeComplete($Block) {
-        $this->doAttributes($Block['element']['element'], 'blockCodeAttributes');
-        $this->doHtml($Block['element']['element'], 'blockCodeHtml', true);
-        // Put code attributes on parent tag
+        self::doSetAttributes($Block['element']['element'], $this->blockCodeAttributes);
+        self::doSetHtml($Block['element']['element'], $this->blockCodeHtml, true);
+        # Put code attributes on parent tag
         if ($this->blockCodeAttributesOnParent) {
             $Block['element']['attributes'] = $Block['element']['element']['attributes'];
             unset($Block['element']['element']['attributes']);
@@ -134,12 +110,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     protected function blockFencedCode($Line) {
-        // Re-enable the multiple class name feature
+        # Re-enable the multiple class name feature
         $Line['text'] = strtr(trim($Line['text']), array(
             ' ' => "\x1A",
             '.' => "\x1A."
         ));
-        // Enable custom attribute syntax on code block
+        # Enable custom attribute syntax on code block
         $Attributes = array();
         if (strpos($Line['text'], '{') !== false && substr($Line['text'], -1) === '}') {
             $Parts = explode('{', $Line['text'], 2);
@@ -183,14 +159,14 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!$Block = parent::blockTableContinue($Line, $Block)) {
             return $Block;
         }
-        $Alignments = $Block['alignments'];
+        $Aligns = $Block['alignments'];
         // `<thead>` or `<tbody>`
         foreach ($Block['element']['elements'] as $Index0 => &$Element0) {
             // `<tr>`
             foreach ($Element0['elements'] as $Index1 => &$Element1) {
                 // `<th>` or `<td>`
                 foreach ($Element1['elements'] as $Index2 => &$Element2) {
-                    $this->doAttributes($Element2, 'tableColumnAttributes', array($Index2, $Alignments[$Index2]));
+                    self::doSetAttributes($Element2, $this->tableColumnAttributes, array($Aligns[$Index2], $Index2));
                 }
             }
         }
@@ -198,8 +174,36 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     protected function blockTableComplete($Block) {
-        $this->doAttributes($Block['element'], 'tableAttributes');
+        self::doSetAttributes($Block['element'], $this->tableAttributes);
         return $Block;
+    }
+
+    protected function buildFootnoteElement() {
+        $DefinitionData = $this->DefinitionData['Footnote'];
+        if (!$Footnotes = parent::buildFootnoteElement()) {
+            return $Footnotes;
+        }
+        $DefinitionKey = array_keys($DefinitionData);
+        $DefinitionData = array_values($DefinitionData);
+        self::doSetAttributes($Footnotes, $this->footnoteAttributes);
+        foreach ($Footnotes['elements'][1]['elements'] as $Index0 => &$Element0) {
+            $Name = $DefinitionKey[$Index0];
+            $Count = $DefinitionData[$Index0]['count'];
+            $Args = array(is_numeric($Name) ? (float) $Name : $Name, $Count);
+            self::doSetAttributes($Element0, $this->footnoteBackReferenceAttributes, $Args);
+            foreach ($Element0['elements'] as $Index1 => &$Element1) {
+                $Count = 0;
+                foreach ($Element1['elements'] as $Index2 => &$Element2) {
+                    if (!isset($Element2['name']) || $Element2['name'] !== 'a') {
+                        continue;
+                    }
+                    $Args[1] = ++$Count;
+                    self::doSetAttributes($Element2, $this->footnoteBackLinkAttributes, $Args);
+                    self::doSetHtml($Element2, $this->footnoteBackLinkHtml, false, 'rawHtml');
+                }
+            }
+        }
+        return $Footnotes;
     }
 
     protected function element(array $Element) {
@@ -208,7 +212,9 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         }
         if (substr($Any, -3) === ' />') {
             if (is_callable($this->voidElementSuffix)) {
-                $Suffix = call_user_func($this->voidElementSuffix, isset($Element['attributes']) ? $Element['attributes'] : array(), $Element);
+                $Attributes = self::doGetAttributes($Element);
+                $Html = self::doGetHtml($Element);
+                $Suffix = call_user_func($this->voidElementSuffix, $Html, $Attributes, $Element);
             } else {
                 $Suffix = $this->voidElementSuffix;
             }
@@ -221,11 +227,29 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!$Inline = parent::inlineCode($Excerpt)) {
             return $Inline;
         }
-        $this->doAttributes($Inline['element'], 'codeAttributes');
-        $this->doHtml($Inline['element'], 'codeHtml', true);
+        self::doSetAttributes($Inline['element'], $this->codeAttributes);
+        self::doSetHtml($Inline['element'], $this->codeHtml, true);
         $Inline['element']['rawHtml'] = $Inline['element']['text'];
         $Inline['element']['allowRawHtmlInSafeMode'] = true;
         unset($Inline['element']['text']);
+        return $Inline;
+    }
+
+    protected function inlineFootnoteMarker($Excerpt) {
+        if (!$Inline = parent::inlineFootnoteMarker($Excerpt)) {
+            return $Inline;
+        }
+        $Name = null;
+        if (preg_match('/^\[\^(.+?)\]/', $Excerpt['text'], $matches)) {
+            $Name = $matches[1];
+        }
+        $Args = array(is_numeric($Name) ? (float) $Name : $Name, $this->DefinitionData['Footnote'][$Name]['count']);
+        self::doSetAttributes($Inline['element'], $this->footnoteReferenceAttributes, $Args);
+        self::doSetAttributes($Inline['element']['element'], $this->footnoteLinkAttributes, $Args);
+        self::doSetHtml($Inline['element']['element'], $this->footnoteLinkHtml, false, 'text', $Args);
+        $Inline['element']['element']['rawHtml'] = $Inline['element']['element']['text'];
+        $Inline['element']['element']['allowRawHtmlInSafeMode'] = true;
+        unset($Inline['element']['element']['text']);
         return $Inline;
     }
 
@@ -233,6 +257,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         $linkAttributes = $this->linkAttributes;
         $this->linkAttributes = $this->imageAttributes;
         $Inline = parent::inlineImage($Excerpt);
+        $Internal = isset($Inline['element']['attributes']['src']) ? self::isInternalLink($Inline['element']['attributes']['src']) : null;
+        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
         $this->linkAttributes = $linkAttributes;
         unset($linkAttributes);
         return $Inline;
@@ -242,8 +268,9 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!$Inline = parent::inlineLink($Excerpt)) {
             return $Inline;
         }
-        $this->doAttributes($Inline['element'], 'linkAttributes');
-        $this->_setReferenceData();
+        $Internal = isset($Inline['element']['attributes']['href']) ? self::isInternalLink($Inline['element']['attributes']['href']) : null;
+        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
+        self::doSetData($this->DefinitionData['Reference'], $this->referenceData);
         return $Inline;
     }
 
@@ -251,8 +278,9 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!$Inline = parent::inlineUrl($Excerpt)) {
             return $Inline;
         }
-        $this->doAttributes($Inline['element'], 'linkAttributes');
-        $this->_setReferenceData();
+        $Internal = isset($Inline['element']['attributes']['href']) ? self::isInternalLink($Inline['element']['attributes']['href']) : null;
+        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
+        self::doSetData($this->DefinitionData['Reference'], $this->referenceData);
         return $Inline;
     }
 
@@ -260,13 +288,14 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!$Inline = parent::inlineUrlTag($Excerpt)) {
             return $Inline;
         }
-        $this->doAttributes($Inline['element'], 'linkAttributes');
-        $this->_setReferenceData();
+        $Internal = isset($Inline['element']['attributes']['href']) ? self::isInternalLink($Inline['element']['attributes']['href']) : null;
+        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
+        self::doSetData($this->DefinitionData['Reference'], $this->referenceData);
         return $Inline;
     }
 
     protected function parseAttributeData($attributeString) {
-        // Allow compact attributes
+        # Allow compact attributes
         $attributeString = strtr($attributeString, array(
             '#' => ' #',
             '.' => ' .'
@@ -317,7 +346,53 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $Attributes;
     }
 
-    static function isInternalLink($Link) {
+    protected static function doSetAttributes(&$Element, $From, $Args = array()) {
+        $Attributes = self::doGetAttributes($Element);
+        $Html = self::doGetHtml($Element);
+        if (is_callable($From)) {
+            $Args = array_merge(array($Html, $Attributes, $Element), $Args);
+            $Element['attributes'] = array_replace($Attributes, (array) call_user_func_array($From, $Args));
+        } else {
+            $Element['attributes'] = array_replace($Attributes, (array) $From);
+        }
+    }
+
+    protected static function doSetData(&$To, $From) {
+        $To = array_replace((array) $To, (array) $From);
+    }
+
+    protected static function doSetHtml(&$Element, $From, $Esc = false, $Mode = 'text', $Args = array()) {
+        $Attributes = self::doGetAttributes($Element);
+        $Html = self::doGetHtml($Element);
+        if ($Esc) {
+            $Html = self::escape($Html);
+        }
+        if (is_callable($From)) {
+            $Args = array_merge(array($Html, $Attributes, $Element), $Args);
+            $Element[$Mode] = call_user_func_array($From, $Args);
+        } else if (!empty($From)) {
+            $Element[$Mode] = sprintf($From, $Html);
+        }
+    }
+
+    protected static function doGetAttributes($Element) {
+        if (isset($Element['attributes'])) {
+            return (array) $Element['attributes'];
+        }
+        return array();
+    }
+
+    protected static function doGetHtml($Element) {
+        if (isset($Element['text'])) {
+            return $Element['text'];
+        }
+        if (isset($Element['rawHtml'])) {
+            return $Element['rawHtml'];
+        }
+        return null;
+    }
+
+    protected static function isInternalLink($Link) {
         if (isset($_SERVER['HTTP_HOST'])) {
             $Host = $_SERVER['HTTP_HOST'];
         } else if (isset($_SERVER['SERVER_NAME'])) {
@@ -339,10 +414,6 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             return false; // `<a href="//example.com">`
         }
         return $Internal;
-    }
-
-    static function isExternalLink($Link) {
-        return !self::isInternalLink($Link);
     }
 
 }

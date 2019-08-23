@@ -15,13 +15,13 @@ $parser->referenceData = array(
     )
 );
 
-$parser->imageAttributes = function($Attributes) {
+$parser->imageAttributes = function($Text, $Attributes, $Element, $IsInternal) {
+    $Any = array('class' => $IsInternal ? 'local-image' : 'remote-image');
     if (isset($Attributes['title'])) {
-        return array(
-            'width' => 75,
-            'height' => 75
-        );
+        $Any['width'] = 75;
+        $Any['height'] = 75;
     }
+    return $Any;
 };
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';

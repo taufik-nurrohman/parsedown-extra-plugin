@@ -2,15 +2,18 @@
 
 $s = <<<S
 
-Lorem ipsum dolor sit amet. [^1]
+Lorem ipsum dolor sit amet. [^1] [^2] [^abcdef]
+
+Lorem ipsum dolor sit amet. [^2]
 
 [^1]: Lorem ipsum dolor sit amet.
+[^2]: Lorem ipsum dolor sit amet.
+[^abcdef]: Lorem ipsum dolor sit amet.
 
 S;
 
-$parser->footnote_link_text = function($text) {
-    return '[' . $text . ']';
-};
+$parser->footnoteBackLinkAttributes = array('rel' => 'nofollow');
+$parser->footnoteBackReferenceAttributes = array('title' => 'Footnote Reference');
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo htmlspecialchars($s);

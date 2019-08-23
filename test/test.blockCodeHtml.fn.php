@@ -44,11 +44,11 @@ $s = <<<S
 
 S;
 
-$parser->blockCodeHtml = function($Html, $Attributes) {
+$parser->blockCodeHtml = function($Text, $Attributes) {
     if (empty($Attributes['class'])) {
-        return '<mark>' . $Html . '</mark>';
+        return '<mark>' . $Text . '</mark>';
     }
-    return $Html;
+    return $Text;
 };
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';

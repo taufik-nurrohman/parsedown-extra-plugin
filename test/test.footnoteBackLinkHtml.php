@@ -2,14 +2,17 @@
 
 $s = <<<S
 
-foo | bar | baz
---- | --- | ---
-1   | 2   | 3
-4   | 5   | 6
+Lorem ipsum dolor sit amet. [^1] [^2] [^abcdef]
+
+Lorem ipsum dolor sit amet. [^2]
+
+[^1]: Lorem ipsum dolor sit amet.
+[^2]: Lorem ipsum dolor sit amet.
+[^abcdef]: Lorem ipsum dolor sit amet.
 
 S;
 
-$parser->table_class = 1;
+$parser->footnoteBackLinkHtml = 'Top &uarr;';
 
 echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
 echo htmlspecialchars($s);

@@ -8,7 +8,7 @@ Foo bar `baz` qux.
 
 S;
 
-$parser->codeAttributes = function($Attributes, $Element) {
+$parser->codeAttributes = function($Text, $Attributes, $Element) {
     if ($Element['text'] === 'baz') {
         return array('class' => 'code-baz');
     }
