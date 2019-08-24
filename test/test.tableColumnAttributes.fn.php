@@ -1,6 +1,6 @@
 <?php
 
-$s = <<<S
+$Text = <<<S
 
 foo | bar | baz | qux
 --- | :-- | :-: | --:
@@ -9,23 +9,9 @@ foo | bar | baz | qux
 
 S;
 
-$parser->tableColumnAttributes = function($Text, $Attributes, $Element, $Align, $Index) {
+$Parsedown->tableColumnAttributes = function($Text, $Attributes, $Element, $Align) {
     return array(
-        'style' => null, # Remove inline styles
-        'class' => $Align ? 'text-' . $Align : null
+        'class' => $Align ? 'text-' . $Align : null,
+        'style' => null // Remove inline styles
     );
 };
-
-echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlspecialchars($s);
-echo '</pre>';
-
-$ss = $parser->text($s);
-
-echo '<div style="border:2px solid green;padding:2em;" title="output">';
-echo $ss;
-echo '</div>';
-
-echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlspecialchars($ss);
-echo '</pre>';

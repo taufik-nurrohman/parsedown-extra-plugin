@@ -12,5 +12,4 @@ Lorem ipsum dolor sit amet. [^2]
 
 S;
 
-$Parsedown->footnoteLinkAttributes = array('rel' => 'nofollow');
-$Parsedown->footnoteReferenceAttributes = array('title' => 'Footnote Reference');
+$Parsedown->footnoteAttributes = array('class' => 'notes');

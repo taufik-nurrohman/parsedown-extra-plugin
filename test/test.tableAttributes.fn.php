@@ -1,6 +1,6 @@
 <?php
 
-$s = <<<S
+$Text = <<<S
 
 foo | bar | baz
 --- | --- | ---
@@ -10,7 +10,7 @@ foo | bar | baz
 
 S;
 
-$parser->tableAttributes = function($Text, $Attributes, $Element) {
+$Parsedown->tableAttributes = function($Text, $Attributes, $Element) {
     // thead > tr > *
     $numberOfColumns = count($Element['elements'][0]['elements'][0]['elements']);
     // tbody > *
@@ -20,17 +20,3 @@ $parser->tableAttributes = function($Text, $Attributes, $Element) {
         'class' => 'has-' . $numberOfColumns . '-columns has-' . $numberOfRows . '-rows'
     );
 };
-
-echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlspecialchars($s);
-echo '</pre>';
-
-$ss = $parser->text($s);
-
-echo '<div style="border:2px solid green;padding:2em;" title="output">';
-echo $ss;
-echo '</div>';
-
-echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlspecialchars($ss);
-echo '</pre>';

@@ -33,6 +33,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $blockCodeHtml = null;
 
+    public $blockQuoteAttributes = array();
+
+    public $blockQuoteText = null;
+
     public $codeAttributes = array();
 
     public $codeHtml = null;
@@ -41,7 +45,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $footnoteBackLinkAttributes = array();
 
-    public $footnoteBackLinkHtml = '&#8617;';
+    public $footnoteBackLinkHtml = null;
 
     public $footnoteBackReferenceAttributes = array();
 
@@ -50,6 +54,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     public $footnoteLinkHtml = null;
 
     public $footnoteReferenceAttributes = array();
+
+    public $headerAttributes = array();
+
+    public $headerText = null;
 
     public $imageAttributes = array();
 
@@ -91,13 +99,13 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $this->DefinitionData['Abbreviation'][$matches[1]] = null;
             return array('hidden' => true);
         }
-        self::doSetData($this->DefinitionData['Abbreviation'], $this->abbreviationData);
+        $this->doSetData($this->DefinitionData['Abbreviation'], $this->abbreviationData);
         return parent::blockAbbreviation($Line);
     }
 
     protected function blockCodeComplete($Block) {
-        self::doSetAttributes($Block['element']['element'], $this->blockCodeAttributes);
-        self::doSetHtml($Block['element']['element'], $this->blockCodeHtml, true);
+        $this->doSetAttributes($Block['element']['element'], $this->blockCodeAttributes);
+        $this->doSetContent($Block['element']['element'], $this->blockCodeHtml, true);
         # Put code attributes on parent tag
         if ($this->blockCodeAttributesOnParent) {
             $Block['element']['attributes'] = $Block['element']['element']['attributes'];
@@ -123,7 +131,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $Line['text'] = trim($Parts[0]);
         }
         if (!$Block = parent::blockFencedCode($Line)) {
-            return $Block;
+            return;
         }
         if ($Attributes) {
             $Block['element']['element']['attributes'] = $Attributes;
@@ -155,9 +163,35 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $this->blockCodeComplete($Block);
     }
 
+    protected function blockHeader($Line) {
+        if (!$Block = parent::blockHeader($Line)) {
+            return;
+        }
+        $Level = strspn($Line['text'], '#');
+        $this->doSetAttributes($Block['element'], $this->headerAttributes, array($Level));
+        $this->doSetContent($Block['element'], $this->headerText, false, 'argument', array($Level));
+        return $Block;
+    }
+
+    protected function blockQuoteComplete($Block) {
+        $this->doSetAttributes($Block['element'], $this->blockQuoteAttributes);
+        $this->doSetContent($Block['element'], $this->blockQuoteText, false, 'arguments');
+        return $Block;
+    }
+
+    protected function blockSetextHeader($Line, array $Block = null) {
+        if (!$Block = parent::blockSetextHeader($Line, $Block)) {
+            return;
+        }
+        $Level = $Line['text'][0] === '=' ? 1 : 2;
+        $this->doSetAttributes($Block['element'], $this->headerAttributes, array($Level));
+        $this->doSetContent($Block['element'], $this->headerText, false, 'argument', array($Level));
+        return $Block;
+    }
+
     protected function blockTableContinue($Line, array $Block) {
         if (!$Block = parent::blockTableContinue($Line, $Block)) {
-            return $Block;
+            return;
         }
         $Aligns = $Block['alignments'];
         // `<thead>` or `<tbody>`
@@ -166,7 +200,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             foreach ($Element0['elements'] as $Index1 => &$Element1) {
                 // `<th>` or `<td>`
                 foreach ($Element1['elements'] as $Index2 => &$Element2) {
-                    self::doSetAttributes($Element2, $this->tableColumnAttributes, array($Aligns[$Index2], $Index2));
+                    $this->doSetAttributes($Element2, $this->tableColumnAttributes, array($Aligns[$Index2], $Index2));
                 }
             }
         }
@@ -174,23 +208,23 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     protected function blockTableComplete($Block) {
-        self::doSetAttributes($Block['element'], $this->tableAttributes);
+        $this->doSetAttributes($Block['element'], $this->tableAttributes);
         return $Block;
     }
 
     protected function buildFootnoteElement() {
         $DefinitionData = $this->DefinitionData['Footnote'];
         if (!$Footnotes = parent::buildFootnoteElement()) {
-            return $Footnotes;
+            return;
         }
         $DefinitionKey = array_keys($DefinitionData);
         $DefinitionData = array_values($DefinitionData);
-        self::doSetAttributes($Footnotes, $this->footnoteAttributes);
+        $this->doSetAttributes($Footnotes, $this->footnoteAttributes);
         foreach ($Footnotes['elements'][1]['elements'] as $Index0 => &$Element0) {
             $Name = $DefinitionKey[$Index0];
             $Count = $DefinitionData[$Index0]['count'];
             $Args = array(is_numeric($Name) ? (float) $Name : $Name, $Count);
-            self::doSetAttributes($Element0, $this->footnoteBackReferenceAttributes, $Args);
+            $this->doSetAttributes($Element0, $this->footnoteBackReferenceAttributes, $Args);
             foreach ($Element0['elements'] as $Index1 => &$Element1) {
                 $Count = 0;
                 foreach ($Element1['elements'] as $Index2 => &$Element2) {
@@ -198,23 +232,88 @@ class ParsedownExtraPlugin extends ParsedownExtra {
                         continue;
                     }
                     $Args[1] = ++$Count;
-                    self::doSetAttributes($Element2, $this->footnoteBackLinkAttributes, $Args);
-                    self::doSetHtml($Element2, $this->footnoteBackLinkHtml, false, 'rawHtml');
+                    $this->doSetAttributes($Element2, $this->footnoteBackLinkAttributes, $Args);
+                    $this->doSetContent($Element2, $this->footnoteBackLinkHtml, false, 'rawHtml');
                 }
             }
         }
         return $Footnotes;
     }
 
+    protected function doGetAttributes($Element) {
+        if (isset($Element['attributes'])) {
+            return (array) $Element['attributes'];
+        }
+        return array();
+    }
+
+    protected function doGetContent($Element) {
+        if (isset($Element['text'])) {
+            return $Element['text'];
+        }
+        if (isset($Element['rawHtml'])) {
+            return $Element['rawHtml'];
+        }
+        if (isset($Element['handler']['argument'])) {
+            return implode("\n", (array) $Element['handler']['argument']);
+        }
+        return null;
+    }
+
+    private function doSetLink($Excerpt, $Function) {
+        if (!$Inline = call_user_func('parent::' . $Function, $Excerpt)) {
+            return;
+        }
+        $this->doSetAttributes($Inline['element'], $this->linkAttributes, array($this->isLocal($Inline['element'], 'href')));
+        $this->doSetData($this->DefinitionData['Reference'], $this->referenceData);
+        return $Inline;
+    }
+
+    protected function doSetAttributes(&$Element, $From, $Args = array()) {
+        $Attributes = $this->doGetAttributes($Element);
+        $Content = $this->doGetContent($Element);
+        if (is_callable($From)) {
+            $Args = array_merge(array($Content, $Attributes, $Element), $Args);
+            $Element['attributes'] = array_replace($Attributes, (array) call_user_func_array($From, $Args));
+        } else {
+            $Element['attributes'] = array_replace($Attributes, (array) $From);
+        }
+    }
+
+    protected function doSetContent(&$Element, $From, $Esc = false, $Mode = 'text', $Args = array()) {
+        $Attributes = $this->doGetAttributes($Element);
+        $Content = $this->doGetContent($Element);
+        if ($Esc) {
+            $Content = $this->escape($Content);
+        }
+        if (is_callable($From)) {
+            $Args = array_merge(array($Content, $Attributes, $Element), $Args);
+            $Content = call_user_func_array($From, $Args);
+        } else if (!empty($From)) {
+            $Content = sprintf($From, $Content);
+        }
+        if ($Mode === 'arguments') {
+            $Element['handler']['argument'] = explode("\n", $Content);
+        } else if ($Mode === 'argument') {
+            $Element['handler']['argument'] = $Content;
+        } else {
+            $Element[$Mode] = $Content;
+        }
+    }
+
+    protected function doSetData(&$To, $From) {
+        $To = array_replace((array) $To, (array) $From);
+    }
+
     protected function element(array $Element) {
         if (!$Any = parent::element($Element)) {
-            return $Any;
+            return;
         }
         if (substr($Any, -3) === ' />') {
             if (is_callable($this->voidElementSuffix)) {
-                $Attributes = self::doGetAttributes($Element);
-                $Html = self::doGetHtml($Element);
-                $Suffix = call_user_func($this->voidElementSuffix, $Html, $Attributes, $Element);
+                $Attributes = $this->doGetAttributes($Element);
+                $Content = $this->doGetContent($Element);
+                $Suffix = call_user_func($this->voidElementSuffix, $Content, $Attributes, $Element);
             } else {
                 $Suffix = $this->voidElementSuffix;
             }
@@ -225,10 +324,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     protected function inlineCode($Excerpt) {
         if (!$Inline = parent::inlineCode($Excerpt)) {
-            return $Inline;
+            return;
         }
-        self::doSetAttributes($Inline['element'], $this->codeAttributes);
-        self::doSetHtml($Inline['element'], $this->codeHtml, true);
+        $this->doSetAttributes($Inline['element'], $this->codeAttributes);
+        $this->doSetContent($Inline['element'], $this->codeHtml, true);
         $Inline['element']['rawHtml'] = $Inline['element']['text'];
         $Inline['element']['allowRawHtmlInSafeMode'] = true;
         unset($Inline['element']['text']);
@@ -237,16 +336,16 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     protected function inlineFootnoteMarker($Excerpt) {
         if (!$Inline = parent::inlineFootnoteMarker($Excerpt)) {
-            return $Inline;
+            return;
         }
         $Name = null;
         if (preg_match('/^\[\^(.+?)\]/', $Excerpt['text'], $matches)) {
             $Name = $matches[1];
         }
         $Args = array(is_numeric($Name) ? (float) $Name : $Name, $this->DefinitionData['Footnote'][$Name]['count']);
-        self::doSetAttributes($Inline['element'], $this->footnoteReferenceAttributes, $Args);
-        self::doSetAttributes($Inline['element']['element'], $this->footnoteLinkAttributes, $Args);
-        self::doSetHtml($Inline['element']['element'], $this->footnoteLinkHtml, false, 'text', $Args);
+        $this->doSetAttributes($Inline['element'], $this->footnoteReferenceAttributes, $Args);
+        $this->doSetAttributes($Inline['element']['element'], $this->footnoteLinkAttributes, $Args);
+        $this->doSetContent($Inline['element']['element'], $this->footnoteLinkHtml, false, 'text', $Args);
         $Inline['element']['element']['rawHtml'] = $Inline['element']['element']['text'];
         $Inline['element']['element']['allowRawHtmlInSafeMode'] = true;
         unset($Inline['element']['element']['text']);
@@ -257,41 +356,63 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         $linkAttributes = $this->linkAttributes;
         $this->linkAttributes = $this->imageAttributes;
         $Inline = parent::inlineImage($Excerpt);
-        $Internal = isset($Inline['element']['attributes']['src']) ? self::isInternalLink($Inline['element']['attributes']['src']) : null;
-        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
+        $this->doSetAttributes($Inline['element'], $this->linkAttributes, array($this->isLocal($Inline['element'], 'src')));
         $this->linkAttributes = $linkAttributes;
         unset($linkAttributes);
         return $Inline;
     }
 
     protected function inlineLink($Excerpt) {
-        if (!$Inline = parent::inlineLink($Excerpt)) {
-            return $Inline;
-        }
-        $Internal = isset($Inline['element']['attributes']['href']) ? self::isInternalLink($Inline['element']['attributes']['href']) : null;
-        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
-        self::doSetData($this->DefinitionData['Reference'], $this->referenceData);
-        return $Inline;
+        return $this->doSetLink($Excerpt, __FUNCTION__);
     }
 
     protected function inlineUrl($Excerpt) {
-        if (!$Inline = parent::inlineUrl($Excerpt)) {
-            return $Inline;
-        }
-        $Internal = isset($Inline['element']['attributes']['href']) ? self::isInternalLink($Inline['element']['attributes']['href']) : null;
-        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
-        self::doSetData($this->DefinitionData['Reference'], $this->referenceData);
-        return $Inline;
+        return $this->doSetLink($Excerpt, __FUNCTION__);
     }
 
     protected function inlineUrlTag($Excerpt) {
-        if (!$Inline = parent::inlineUrlTag($Excerpt)) {
-            return $Inline;
+        return $this->doSetLink($Excerpt, __FUNCTION__);
+    }
+
+    protected function isLocal($Element, $Key) {
+        $Link = isset($Element['attributes'][$Key]) ? (string) $Element['attributes'][$Key] : null;
+        if (
+            // `<a href="">`
+            $Link === "" ||
+            // `<a href="../foo/bar">`
+            // `<a href="/foo/bar">`
+            // `<a href="?foo=bar">`
+            // `<a href="&foo=bar">`
+            // `<a href="#foo">`
+            strpos('./?&#', $Link[0]) !== false && strpos($Link, '//') !== 0 ||
+            // `<a href="data:text/html,asdf">`
+            strpos($Link, 'data:') === 0 ||
+            // `<a href="javascript:;">`
+            strpos($Link, 'javascript:') === 0
+        ) {
+            return true;
         }
-        $Internal = isset($Inline['element']['attributes']['href']) ? self::isInternalLink($Inline['element']['attributes']['href']) : null;
-        self::doSetAttributes($Inline['element'], $this->linkAttributes, array($Internal));
-        self::doSetData($this->DefinitionData['Reference'], $this->referenceData);
-        return $Inline;
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $Host = $_SERVER['HTTP_HOST'];
+        } else if (isset($_SERVER['SERVER_NAME'])) {
+            $Host = $_SERVER['SERVER_NAME'];
+        } else {
+            $Host = "";
+        }
+        // `<a href="//example.com">`
+        if (strpos($Link, '//') === 0 && strpos($Link, '//' . $Host) !== 0) {
+            return false;
+        }
+        if (
+            // `<a href="https://127.0.0.1">`
+            strpos($Link, 'https://' . $Host) === 0 ||
+            // `<a href="http://127.0.0.1">`
+            strpos($Link, 'http://' . $Host) === 0
+        ) {
+            return true;
+        }
+        // `<a href="foo/bar">`
+        return strpos($Link, '://') === false;
     }
 
     protected function parseAttributeData($attributeString) {
@@ -346,163 +467,4 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $Attributes;
     }
 
-    protected static function doSetAttributes(&$Element, $From, $Args = array()) {
-        $Attributes = self::doGetAttributes($Element);
-        $Html = self::doGetHtml($Element);
-        if (is_callable($From)) {
-            $Args = array_merge(array($Html, $Attributes, $Element), $Args);
-            $Element['attributes'] = array_replace($Attributes, (array) call_user_func_array($From, $Args));
-        } else {
-            $Element['attributes'] = array_replace($Attributes, (array) $From);
-        }
-    }
-
-    protected static function doSetData(&$To, $From) {
-        $To = array_replace((array) $To, (array) $From);
-    }
-
-    protected static function doSetHtml(&$Element, $From, $Esc = false, $Mode = 'text', $Args = array()) {
-        $Attributes = self::doGetAttributes($Element);
-        $Html = self::doGetHtml($Element);
-        if ($Esc) {
-            $Html = self::escape($Html);
-        }
-        if (is_callable($From)) {
-            $Args = array_merge(array($Html, $Attributes, $Element), $Args);
-            $Element[$Mode] = call_user_func_array($From, $Args);
-        } else if (!empty($From)) {
-            $Element[$Mode] = sprintf($From, $Html);
-        }
-    }
-
-    protected static function doGetAttributes($Element) {
-        if (isset($Element['attributes'])) {
-            return (array) $Element['attributes'];
-        }
-        return array();
-    }
-
-    protected static function doGetHtml($Element) {
-        if (isset($Element['text'])) {
-            return $Element['text'];
-        }
-        if (isset($Element['rawHtml'])) {
-            return $Element['rawHtml'];
-        }
-        return null;
-    }
-
-    protected static function isInternalLink($Link) {
-        if (isset($_SERVER['HTTP_HOST'])) {
-            $Host = $_SERVER['HTTP_HOST'];
-        } else if (isset($_SERVER['SERVER_NAME'])) {
-            $Host = $_SERVER['SERVER_NAME'];
-        } else {
-            $Host = "";
-        }
-        $Internal = !$Link || // `<a href="">`
-                    strpos($Link, 'https://' . $Host) === 0 || // `<a href="https://127.0.0.1">`
-                    strpos($Link, 'http://' . $Host) === 0 || // `<a href="http://127.0.0.1">`
-                    strpos($Link, '/') === 0 || // `<a href="/foo/bar">`
-                    strpos($Link, '?') === 0 || // `<a href="?foo=bar">`
-                    strpos($Link, '#') === 0 || // `<a href="#foo">`
-                    strpos($Link, 'data:') === 0 || // `<a href="data:text/html,asdf">`
-                    strpos($Link, 'javascript:') === 0 || // `<a href="javascript:;">`
-                    strpos($Link, '.') === 0 || // `<a href="../foo/bar">`
-                    strpos($Link, '://') === false; // `<a href="foo/bar">`
-        if (strpos($Link, '//') === 0 && strpos($Link, '//' . $Host) !== 0) {
-            return false; // `<a href="//example.com">`
-        }
-        return $Internal;
-    }
-
 }
-
-
-
-
-/*
-class ParsedownExtraPlugin extends ParsedownExtra {
-
-
-    // ~
-    protected function inlineFootnoteMarker($excerpt) {
-        if (preg_match('#^\[\^(.+?)\]#', $excerpt['text'], $m)) {
-            $name = $m[1];
-            if (!isset($this->DefinitionData['Footnote'][$name])) return;
-            ++$this->DefinitionData['Footnote'][$name]['count'];
-            if (!isset($this->DefinitionData['Footnote'][$name]['number'])) {
-                $this->DefinitionData['Footnote'][$name]['number'] = ++$this->footnoteCount;
-            }
-            $text = $this->DefinitionData['Footnote'][$name]['number'];
-            if (is_callable($this->footnote_link_text)) {
-                $text = call_user_func($this->footnote_link_text, $text, $excerpt, $m, $this);
-            } else if ($this->footnote_link_text) {
-                $text = sprintf($this->footnote_link_text, $text);
-            }
-            $element = array(
-                'name' => 'sup',
-                'attributes' => array('id' => sprintf($this->footnote_back_link_id, $this->DefinitionData['Footnote'][$name]['count'], $name)),
-                'handler' => 'element',
-                'text' => array(
-                    'name' => 'a',
-                    'attributes' => array(
-                        'href' => '#' . sprintf($this->footnote_link_id, $name),
-                        'class' => $this->footnote_link_class
-                    ),
-                    'text' => $text
-                )
-            );
-            return array(
-                'extent' => strlen($m[0]),
-                'element' => $element
-            );
-        }
-    }
-
-    // ~
-    private $footnoteCount = 0;
-
-    // ~
-    protected function buildFootnoteElement() {
-        $element = array(
-            'name' => 'div',
-            'attributes' => array('class' => $this->footnote_class),
-            'handler' => 'elements',
-            'text' => array(
-                array('name' => 'hr'),
-                array(
-                    'name' => 'ol',
-                    'handler' => 'elements',
-                    'text' => array()
-                )
-            )
-        );
-        uasort($this->DefinitionData['Footnote'], 'parent::sortFootnotes');
-        foreach ($this->DefinitionData['Footnote'] as $id => $data) {
-            if (!isset($data['number'])) continue;
-            $text = $data['text'];
-            $text = parent::text($text);
-            $numbers = range(1, $data['count']);
-            $Data = "";
-            foreach ($numbers as $number) {
-                $Data .= ' <a href="#' . sprintf($this->footnote_back_link_id, $number, $id) . '" rev="footnote" class="' . $this->footnote_back_link_class . '">' . $this->footnote_back_link_text . '</a>';
-            }
-            $Data = substr($Data, 1);
-            if (substr($text, -4) === '</p>') {
-                $Data = '&#160;' . $Data;
-                $text = substr_replace($text, $Data . '</p>', -4);
-            } else {
-                $text .= "\n" . '<p>' . $Data . '</p>';
-            }
-            $element['text'][1]['text'][] = array(
-                'name' => 'li',
-                'attributes' => array('id' => sprintf($this->footnote_link_id, $id)),
-                'text' => "\n" . $text . "\n"
-            );
-        }
-        return $element;
-    }
-
-}
-*/

@@ -1,6 +1,6 @@
 <?php
 
-$s = <<<S
+$Text = <<<S
 
 Lorem ipsum dolor sit amet. [^1] [^2] [^abcdef]
 
@@ -12,32 +12,18 @@ Lorem ipsum dolor sit amet. [^2]
 
 S;
 
-$parser->footnoteLinkAttributes = function($Number, $Attributes, $Element, $Name, $Count) {
+$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
     return array(
         'data-name' => $Name,
-        'data-count' => $Count,
+        'data-index' => $Index,
         'data-number' => $Number
     );
 };
 
-$parser->footnoteReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Count) {
+$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
     return array(
         'data-name' => $Name,
-        'data-count' => $Count,
+        'data-index' => $Index,
         'data-number' => $Number
     );
 };
-
-echo '<pre style="border:2px solid red;padding:2em;white-space:pre-wrap;" title="input">';
-echo htmlspecialchars($s);
-echo '</pre>';
-
-$ss = $parser->text($s);
-
-echo '<div style="border:2px solid green;padding:2em;" title="output">';
-echo $ss;
-echo '</div>';
-
-echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;" title="html">';
-echo htmlspecialchars($ss);
-echo '</pre>';

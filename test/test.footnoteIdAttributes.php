@@ -12,16 +12,18 @@ Lorem ipsum dolor sit amet. [^2]
 
 S;
 
+$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, $Element, $Name) {
+    return array('href' => '#reference:' . $Name);
+};
+
+$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
+    return array('id' => 'note:' . $Name . '.' . $Index);
+};
+
 $Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
-    return array(
-        'data-name' => $Name,
-        'data-index' => $Index
-    );
+    return array('href' => '#note:' . $Name . '.' . $Index);
 };
 
 $Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Total) {
-    return array(
-        'data-name' => $Name,
-        'data-total' => $Total
-    );
+    return array('id' => 'reference:' . $Name);
 };
