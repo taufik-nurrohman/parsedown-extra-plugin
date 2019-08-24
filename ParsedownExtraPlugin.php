@@ -200,7 +200,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             foreach ($Element0['elements'] as $Index1 => &$Element1) {
                 // `<th>` or `<td>`
                 foreach ($Element1['elements'] as $Index2 => &$Element2) {
-                    $this->doSetAttributes($Element2, $this->tableColumnAttributes, array($Aligns[$Index2], $Index2));
+                    $this->doSetAttributes($Element2, $this->tableColumnAttributes, array($Aligns[$Index2], $Index2, $Index1));
                 }
             }
         }

@@ -4,6 +4,11 @@ Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
 > Configurable Markdown to HTML converter with Parsedown Extra.
 
 
+<!-- ![Parsedown](https://i.imgur.com/yE8afYV.png) -->
+
+<p align="center"><img alt="Parsedown" src="https://i.imgur.com/fKVY6Kz.png" width="240" /></p>
+
+
 Contents
 --------
 
