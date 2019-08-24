@@ -99,18 +99,6 @@ $Parsedown->headerAttributes = function($Text, $Attributes, $Element, $Level) {
 };
 ~~~
 
-~~~ .php
-$Parsedown->linkAttributes = function($Text, $Attributes, $Element, $Internal) {
-    if (!$Internal) {
-        return array(
-            'rel' => 'nofollow',
-            'target' => '_blank';
-        );
-    }
-    return array();
-};
-~~~
-
 ### Custom Code Block Class Format
 
 ~~~ .php
@@ -125,15 +113,21 @@ $Parsedown->blockCodeHtml = '<span class="my-code-block">%s</span>';
 ~~~
 
 ~~~ .php
-function doApplySyntaxHighlighter($Html, array $ClassList) { ... }
+// <https://github.com/scrivo/highlight.php>
+function doApplyHighlighter($Html, array $ClassList) {
+    $Highlight = new \Highlight\Highlighter;
+    $Highlight->setAutodetectLanguages($ClassList);
+    $Html = $Highlight->highlightAuto($Html);
+    return '<span class="' . $Html->language . '">' . $Html->value . '</span>';
+}
 
 $Parsedown->codeHtml = function($Html, $Attributes, $Element) {
-    return doApplySyntaxHighlighter($Html, array());
+    return doApplyHighlighter($Html, array());
 };
 
 $Parsedown->blockCodeHtml = function($Html, $Attributes, $Element) {
     $ClassList = isset($Attributes['class']) ? explode(' ', $Attributes['class']) : array();
-    return doApplySyntaxHighlighter($Html, $ClassList);
+    return doApplyHighlighter($Html, $ClassList);
 };
 ~~~
 
@@ -161,10 +155,10 @@ $Parsedown->blockQuoteAttributes = function($Text, $Attributes, $Element) {
 };
 ~~~
 
-### Custom Table Class
+### Custom Table Attributes
 
 ~~~ .php
-$Parsedown->tableAttributes = array('class' => 'table-bordered');
+$Parsedown->tableAttributes = array('border' => 1);
 ~~~
 
 ### Custom Table Alignment Class
@@ -249,7 +243,7 @@ Dot prefix in class name are now becomes optional, custom attributes syntax also
 Property Aliases as Methods
 ---------------------------
 
-Property aliases are available as methods just to follow the way `Parsedown` set its configuration data. It uses PHP `__call` method to generate the class methods automatically:
+Property aliases are available as methods just to follow the way **Parsedown** set its configuration data. It uses PHP `__call` method to generate the class methods automatically:
 
 ~~~ .php
 // This is ...
