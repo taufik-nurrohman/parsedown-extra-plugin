@@ -20,7 +20,7 @@ Contents
 Usage
 -----
 
-Include `ParsedownExtraPlugin.php` just after the `Parsedown.php` and `ParsedownExtra.php`:
+Include `ParsedownExtraPlugin.php` just after the `Parsedown.php` and `ParsedownExtra.php` file:
 
 ~~~ .php
 require 'Parsedown.php';
@@ -50,52 +50,48 @@ $Parsedown->voidElementSuffix = '>'; // HTML5
 ### Predefined Abbreviations
 
 ~~~ .php
-$Parsedown->abbreviationData = array(
+$Parsedown->abbreviationData = [
     'CSS' => 'Cascading Style Sheet',
     'HTML' => 'Hyper Text Markup Language',
     'JS' => 'JavaScript'
-);
+];
 ~~~
 
 ### Predefined Reference Links and Images
 
 ~~~ .php
-$Parsedown->referenceData = array(
-    'mecha-cms' => array(
-        'url' => 'http://mecha-cms.com',
+$Parsedown->referenceData = [
+    'mecha-cms' => [
+        'url' => 'https://mecha-cms.com',
         'title' => 'Mecha CMS'
-    ),
-    'test-image' => array(
+    ],
+    'test-image' => [
         'url' => 'http://example.com/favicon.ico',
         'title' => 'Test Image'
-    )
+    ]
 );
 ~~~
 
 ### Automatic `rel="nofollow"` Attribute on External Links
 
 ~~~ .php
-$Parsedown->linkAttributes = function($Text, $Attributes, $Element, $Internal) {
+$Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) {
     if (!$Internal) {
-        return array(
+        return [
             'rel' => 'nofollow',
             'target' => '_blank';
-        );
+        ];
     }
-    return array();
+    return [];
 };
 ~~~
 
-### Automatic `id` Attributes on Headers
+### Automatic `id` Attribute on Headers
 
 ~~~ .php
-$Parsedown->headerAttributes = function($Text, $Attributes, $Element, $Level) {
-    if (isset($Attributes['id'])) {
-        $Id = $Attributes['id'];
-    } else {
-        $Id = trim(preg_replace('/[^a-z\d]+/', '-', strtolower($Text)), '-');
-    }
-    return array('id' => $Id);
+$Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
+    $Id = $Attributes['id'] ?? trim(preg_replace('/[^a-z\d]+/', '-', strtolower($Text)), '-');
+    return ['id' => $Id];
 };
 ~~~
 
@@ -114,20 +110,21 @@ $Parsedown->blockCodeHtml = '<span class="my-code-block">%s</span>';
 
 ~~~ .php
 // <https://github.com/scrivo/highlight.php>
-function doApplyHighlighter($Html, array $ClassList) {
+function doApplyHighlighter(string $Html, array $ClassList, &$Element) {
     $Highlight = new \Highlight\Highlighter;
     $Highlight->setAutodetectLanguages($ClassList);
     $Html = $Highlight->highlightAuto($Html);
-    return '<span class="' . $Html->language . '">' . $Html->value . '</span>';
+    $Element['attributes']['class'] = 'hljs ' . $Html->language;
+    return $Html->value;
 }
 
-$Parsedown->codeHtml = function($Html, $Attributes, $Element) {
-    return doApplyHighlighter($Html, array());
+$Parsedown->codeHtml = function($Html, $Attributes, &$Element) {
+    return doApplyHighlighter($Html, [], $Element);
 };
 
-$Parsedown->blockCodeHtml = function($Html, $Attributes, $Element) {
-    $ClassList = isset($Attributes['class']) ? explode(' ', $Attributes['class']) : array();
-    return doApplyHighlighter($Html, $ClassList);
+$Parsedown->blockCodeHtml = function($Html, $Attributes, &$Element) {
+    $ClassList = explode(' ', $Attributes['class'] ?? "");
+    return doApplyHighlighter($Html, $ClassList, $Element);
 };
 ~~~
 
@@ -140,62 +137,62 @@ $Parsedown->blockCodeAttributesOnParent = true;
 ### Custom Quote Block Class
 
 ~~~ .php
-$Parsedown->blockQuoteAttributes = array('class' => 'quote');
+$Parsedown->blockQuoteAttributes = ['class' => 'quote'];
 ~~~
 
 ~~~ .php
-$Parsedown->blockQuoteAttributes = function($Text, $Attributes, $Element) {
+$Parsedown->blockQuoteAttributes = function($Text, $Attributes, &$Element) {
     if (strpos($Text, '**Danger:** ') === 0) {
-        return array('class' => 'alert alert-danger');
+        return ['class' => 'alert alert-danger'];
     }
     if (strpos($Text, '**Info:** ') === 0) {
-        return array('class' => 'alert alert-info');
+        return ['class' => 'alert alert-info'];
     }
-    return array();
+    return [];
 };
 ~~~
 
 ### Custom Table Attributes
 
 ~~~ .php
-$Parsedown->tableAttributes = array('border' => 1);
+$Parsedown->tableAttributes = ['border' => 1];
 ~~~
 
 ### Custom Table Alignment Class
 
 ~~~ .php
-$Parsedown->tableColumnAttributes = function($Text, $Attributes, $Element, $Align) {
-    return array(
+$Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Align) {
+    return [
         'class' => $Align ? 'text-' . $Align : null,
         'style' => null // Remove inline styles
-    );
+    ];
 };
 ~~~
 
 ### Custom Footnote ID Format
 
 ~~~ .php
-$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, $Element, $Name) {
-    return array('href' => '#reference:' . $Name);
+$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, &$Element, $Name) {
+    return ['href' => '#reference:' . $Name];
 };
 
-$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
-    return array('id' => 'note:' . $Name . '.' . $Index);
+$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
+    return ['id' => 'note:' . $Name . '.' . $Index];
 };
 
-$Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
-    return array('href' => '#note:' . $Name . '.' . $Index);
+$Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
+    return ['href' => '#note:' . $Name . '.' . $Index];
 };
 
-$Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Total) {
-    return array('id' => 'reference:' . $Name);
+$Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Total) {
+    return ['id' => 'reference:' . $Name];
 };
 ~~~
 
 ### Custom Footnote Class
 
 ~~~ .php
-$Parsedown->footnoteAttributes = array('class' => 'notes');
+$Parsedown->footnoteAttributes = ['class' => 'notes'];
 ~~~
 
 ### Custom Footnote Link Text
@@ -237,7 +234,7 @@ Dot prefix in class name are now becomes optional, custom attributes syntax also
  - `.php` → `<pre><code class="php">`
  - `.php.html` → `<pre><code class="php html">`
  - `.php html` → `<pre><code class="php language-html">`
- - `{.php #foo}` → `<pre><code id="foo" class="php">`
+ - `{.php #foo}` → `<pre><code class="php" id="foo">`
 
 
 Property Aliases as Methods

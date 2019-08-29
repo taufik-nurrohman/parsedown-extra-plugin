@@ -9,7 +9,7 @@ foo | bar | baz | qux
 
 S;
 
-$Parsedown->tableColumnAttributes = function($Text, $Attributes, $Element, $Align) {
+$Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Align) {
     return array(
         'class' => $Align ? 'text-' . $Align : null,
         'style' => null // Remove inline styles

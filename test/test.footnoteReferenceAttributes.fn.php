@@ -12,7 +12,7 @@ Lorem ipsum dolor sit amet. [^2]
 
 S;
 
-$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
+$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
     return array(
         'data-name' => $Name,
         'data-index' => $Index,
@@ -20,7 +20,7 @@ $Parsedown->footnoteLinkAttributes = function($Number, $Attributes, $Element, $N
     );
 };
 
-$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
+$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
     return array(
         'data-name' => $Name,
         'data-index' => $Index,

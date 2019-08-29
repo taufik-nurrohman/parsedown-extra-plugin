@@ -44,9 +44,11 @@ $Text = <<<S
 
 S;
 
-$Parsedown->blockCodeHtml = function($Text, $Attributes) {
+$Parsedown->blockCodeHtml = function($Text, $Attributes, &$Element) {
     if (empty($Attributes['class'])) {
         return '<mark>' . $Text . '</mark>';
+    } else {
+        $Element['attributes']['class'] .= ' test';
     }
     return $Text;
 };

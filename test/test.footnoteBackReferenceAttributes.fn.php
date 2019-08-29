@@ -12,14 +12,14 @@ Lorem ipsum dolor sit amet. [^2]
 
 S;
 
-$Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, $Element, $Name, $Index) {
+$Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
     return array(
         'data-name' => $Name,
         'data-index' => $Index
     );
 };
 
-$Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, $Element, $Name, $Total) {
+$Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Total) {
     return array(
         'data-name' => $Name,
         'data-total' => $Total

@@ -24,22 +24,14 @@ Header 2
 
 S;
 
-$Parsedown->headerText = function($Text, $Attributes, $Element, $Level) {
+$Parsedown->headerText = function($Text, $Attributes, &$Element, $Level) {
     if (isset($Attributes['id'])) {
         $Id = $Attributes['id'];
     } else {
         $Id = trim(preg_replace('/[^a-z\d]+/', '-', strtolower($Text)), '-');
     }
+    $Element['attributes']['id'] = $Id;
     return '[#](#' . $Id . ') {.hover-visible} ' . $Text;
-};
-
-$Parsedown->headerAttributes = function($Text, $Attributes, $Element, $Level) {
-    if (isset($Attributes['id'])) {
-        $Id = $Attributes['id'];
-    } else {
-        $Id = trim(preg_replace('/[^a-z\d]+/', '-', strtolower($Text)), '-');
-    }
-    return array('id' => $Id);
 };
 
 echo <<<S

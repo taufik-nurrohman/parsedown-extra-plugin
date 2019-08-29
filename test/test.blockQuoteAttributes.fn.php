@@ -16,7 +16,7 @@ $Text = <<<S
 
 S;
 
-$Parsedown->blockQuoteAttributes = function($Text, $Attributes, $Element) {
+$Parsedown->blockQuoteAttributes = function($Text, $Attributes, &$Element) {
     if (strpos($Text, '**Danger:** ') === 0) {
         return array('class' => 'alert alert-danger');
     }

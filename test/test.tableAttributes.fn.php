@@ -10,7 +10,7 @@ foo | bar | baz
 
 S;
 
-$Parsedown->tableAttributes = function($Text, $Attributes, $Element) {
+$Parsedown->tableAttributes = function($Text, $Attributes, &$Element) {
     // thead > tr > *
     $numberOfColumns = count($Element['elements'][0]['elements'][0]['elements']);
     // tbody > *

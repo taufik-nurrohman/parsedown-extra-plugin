@@ -8,7 +8,7 @@ Foo bar `baz` qux.
 
 S;
 
-$Parsedown->codeHtml = function($Text) {
+$Parsedown->codeHtml = function($Text, $Attributes, &$Element) {
     if (strpos($Text, '&lt;') !== false) {
         return '<mark>' . $Text . '</mark>';
     }

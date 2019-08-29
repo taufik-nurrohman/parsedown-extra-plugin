@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.2.0-beta-1';
+    const version = '1.2.0-beta-2';
 
 
     # config
@@ -273,7 +273,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         $Attributes = $this->doGetAttributes($Element);
         $Content = $this->doGetContent($Element);
         if (is_callable($From)) {
-            $Args = array_merge(array($Content, $Attributes, $Element), $Args);
+            $Args = array_merge(array($Content, $Attributes, &$Element), $Args);
             $Element['attributes'] = array_replace($Attributes, (array) call_user_func_array($From, $Args));
         } else {
             $Element['attributes'] = array_replace($Attributes, (array) $From);
@@ -284,10 +284,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         $Attributes = $this->doGetAttributes($Element);
         $Content = $this->doGetContent($Element);
         if ($Esc) {
-            $Content = $this->escape($Content);
+            $Content = parent::escape($Content);
         }
         if (is_callable($From)) {
-            $Args = array_merge(array($Content, $Attributes, $Element), $Args);
+            $Args = array_merge(array($Content, $Attributes, &$Element), $Args);
             $Content = call_user_func_array($From, $Args);
         } else if (!empty($From)) {
             $Content = sprintf($From, $Content);
@@ -313,7 +313,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             if (is_callable($this->voidElementSuffix)) {
                 $Attributes = $this->doGetAttributes($Element);
                 $Content = $this->doGetContent($Element);
-                $Suffix = call_user_func($this->voidElementSuffix, $Content, $Attributes, $Element);
+                $Suffix = call_user_func_array($this->voidElementSuffix, [$Content, $Attributes, &$Element]);
             } else {
                 $Suffix = $this->voidElementSuffix;
             }
