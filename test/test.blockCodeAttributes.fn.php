@@ -20,7 +20,7 @@ $Text = <<<S
 
 S;
 
-$Parsedown->blockCodeAttributes = function($Text, $Attributes, &$Element) {
+$Parsedown->blockCodeAttributes = function($Html, $Attributes, &$Element) {
     if (isset($Attributes['class']) && $Attributes['class'] === 'language-html') {
         return array('title' => 'Code Block');
     }

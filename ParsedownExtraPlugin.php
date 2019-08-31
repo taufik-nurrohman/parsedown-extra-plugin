@@ -284,7 +284,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         $Attributes = $this->doGetAttributes($Element);
         $Content = $this->doGetContent($Element);
         if ($Esc) {
-            $Content = parent::escape($Content);
+            $Content = parent::escape($Content, true);
         }
         if (is_callable($From)) {
             $Args = array_merge(array($Content, $Attributes, &$Element), $Args);
@@ -355,10 +355,11 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     protected function inlineImage($Excerpt) {
         $linkAttributes = $this->linkAttributes;
         $this->linkAttributes = $this->imageAttributes;
-        $Inline = parent::inlineImage($Excerpt);
-        $this->doSetAttributes($Inline['element'], $this->linkAttributes, array($this->isLocal($Inline['element'], 'src')));
-        $this->linkAttributes = $linkAttributes;
-        unset($linkAttributes);
+        if ($Inline = parent::inlineImage($Excerpt)) {
+            $this->doSetAttributes($Inline['element'], $this->linkAttributes, array($this->isLocal($Inline['element'], 'src')));
+            $this->linkAttributes = $linkAttributes;
+            unset($linkAttributes);
+        }
         return $Inline;
     }
 

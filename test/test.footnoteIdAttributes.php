@@ -13,17 +13,17 @@ Lorem ipsum dolor sit amet. [^2]
 S;
 
 $Parsedown->footnoteLinkAttributes = function($Number, $Attributes, &$Element, $Name) {
-    return array('href' => '#reference:' . $Name);
+    return array('href' => '#to:' . $Name);
 };
 
 $Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
-    return array('id' => 'note:' . $Name . '.' . $Index);
+    return array('id' => 'from:' . $Name . '.' . $Index);
 };
 
 $Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
-    return array('href' => '#note:' . $Name . '.' . $Index);
+    return array('href' => '#from:' . $Name . '.' . $Index);
 };
 
 $Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Total) {
-    return array('id' => 'reference:' . $Name);
+    return array('id' => 'to:' . $Name);
 };
