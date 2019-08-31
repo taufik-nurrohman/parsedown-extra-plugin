@@ -173,19 +173,19 @@ $Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Ali
 
 ~~~ .php
 $Parsedown->footnoteLinkAttributes = function($Number, $Attributes, &$Element, $Name) {
-    return ['href' => '#reference:' . $Name];
+    return ['href' => '#to:' . $Name];
 };
 
 $Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
-    return ['id' => 'note:' . $Name . '.' . $Index];
+    return ['id' => 'from:' . $Name . '.' . $Index];
 };
 
 $Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
-    return ['href' => '#note:' . $Name . '.' . $Index];
+    return ['href' => '#from:' . $Name . '.' . $Index];
 };
 
 $Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Total) {
-    return ['id' => 'reference:' . $Name];
+    return ['id' => 'to:' . $Name];
 };
 ~~~
 
