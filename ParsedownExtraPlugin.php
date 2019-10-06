@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.2.0-beta-2';
+    const version = '1.2.0-beta-3';
 
 
     # config
@@ -353,13 +353,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     protected function inlineImage($Excerpt) {
-        $linkAttributes = $this->linkAttributes;
-        $this->linkAttributes = $this->imageAttributes;
-        if ($Inline = parent::inlineImage($Excerpt)) {
-            $this->doSetAttributes($Inline['element'], $this->linkAttributes, array($this->isLocal($Inline['element'], 'src')));
-            $this->linkAttributes = $linkAttributes;
-            unset($linkAttributes);
+        if (!$Inline = parent::inlineImage($Excerpt)) {
+            return;
         }
+        $this->doSetAttributes($Inline['element'], $this->imageAttributes, array($this->isLocal($Inline['element'], 'src')));
         return $Inline;
     }
 
