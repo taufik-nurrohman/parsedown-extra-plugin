@@ -99,7 +99,6 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $this->DefinitionData['Abbreviation'][$matches[1]] = null;
             return array('hidden' => true);
         }
-        $this->doSetData($this->DefinitionData['Abbreviation'], $this->abbreviationData);
         return parent::blockAbbreviation($Line);
     }
 
@@ -362,6 +361,11 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     protected function inlineLink($Excerpt) {
         return $this->doSetLink($Excerpt, __FUNCTION__);
+    }
+
+    protected function inlineText($Text) {
+        $this->doSetData($this->DefinitionData['Abbreviation'], $this->abbreviationData);
+        return parent::inlineText($Text);
     }
 
     protected function inlineUrl($Excerpt) {
