@@ -90,7 +90,7 @@ $Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) 
 
 ~~~ .php
 $Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
-    $Id = $Attributes['id'] ?? trim(preg_replace('/[^a-z\d]+/', '-', strtolower($Text)), '-');
+    $Id = $Attributes['id'] ?? trim(preg_replace('/[^a-z\d\x{4e00}-\x{9fa5}]+/u', '-', strtolower($Text)), '-');
     return ['id' => $Id];
 };
 ~~~

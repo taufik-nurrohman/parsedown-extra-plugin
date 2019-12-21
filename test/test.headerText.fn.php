@@ -28,7 +28,7 @@ $Parsedown->headerText = function($Text, $Attributes, &$Element, $Level) {
     if (isset($Attributes['id'])) {
         $Id = $Attributes['id'];
     } else {
-        $Id = trim(preg_replace('/[^a-z\d]+/', '-', strtolower($Text)), '-');
+        $Id = trim(preg_replace('/[^a-z\d\x{4e00}-\x{9fa5}]+/u', '-', strtolower($Text)), '-');
     }
     $Element['attributes']['id'] = $Id;
     return '[#](#' . $Id . ') {.hover-visible} ' . $Text;
