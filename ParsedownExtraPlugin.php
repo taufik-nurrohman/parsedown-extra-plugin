@@ -187,7 +187,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $Block;
     }
 
-    protected function blockImage($Line, $Block) {
+    protected function blockImage($Line) {
         if (!$this->figuresEnabled) {
             return;
         }
