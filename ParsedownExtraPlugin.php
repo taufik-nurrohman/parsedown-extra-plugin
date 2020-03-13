@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.2.0-beta-3';
+    const version = '1.2.0';
 
 
     # config
@@ -449,22 +449,38 @@ class ParsedownExtraPlugin extends ParsedownExtra {
                 $vv = explode('=', $v, 2);
                 // `{foo=}`
                 if ($vv[1] === "") {
+                    if ($vv[0] === 'class') {
+                        continue;
+                    }
                     $Attributes[$vv[0]] = "";
                 // `{foo="bar baz"}`
                 // `{foo='bar baz'}`
                 } else if ($vv[1][0] === '"' && substr($vv[1], -1) === '"' || $vv[1][0] === "'" && substr($vv[1], -1) === "'") {
-                    $Attributes[$vv[0]] = stripslashes(strtr(substr(substr($vv[1], 1), 0, -1), "\x1A", ' '));
+                    $values = stripslashes(strtr(substr(substr($vv[1], 1), 0, -1), "\x1A", ' '));
+                    if ($vv[0] === 'class' && isset($Attributes[$vv[0]])) {
+                        $values = explode(' ', $values);
+                        $Attributes[$vv[0]] = array_merge($Attributes[$vv[0]], $values);
+                    } else {
+                        $Attributes[$vv[0]] = $values;
+                    }
                 // `{foo=bar}`
                 } else {
-                    $Attributes[$vv[0]] = $vv[1];
+                    if ($vv[0] === 'class' && isset($Attributes[$vv[0]])) {
+                        $Attributes[$vv[0]] = array_merge($Attributes[$vv[0]], [$vv[1]]);
+                    } else {
+                        $Attributes[$vv[0]] = $vv[1];
+                    }
                 }
             // `{foo}`
             } else {
+                if ($v === 'class' && isset($Attributes[$v])) {
+                    continue;
+                }
                 $Attributes[$v] = $v;
             }
         }
         if (isset($Attributes['class'])) {
-            $Attributes['class'] = implode(' ', array_unique($Attributes['class']));
+            $Attributes['class'] = implode(' ', array_unique((array) $Attributes['class']));
         }
         return $Attributes;
     }

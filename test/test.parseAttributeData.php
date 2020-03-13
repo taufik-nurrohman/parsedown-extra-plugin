@@ -54,4 +54,24 @@ Lorem ipsum dolor *[sit](foo) {foo='*bar'}* amet.
 
 Lorem ipsum dolor *[sit](foo) {foo=*bar}* amet.
 
+### Issue #15
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class="asdf hjkl"} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class='asdf hjkl'} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class="asdf"} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class='asdf'} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class=asdf} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class=} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar.baz class} amet.
+
+Lorem ipsum dolor [sit](/) {id class} amet.
+
+Lorem ipsum dolor [sit](/) {#foo.bar id='baz' class='qux'} amet.
+
 S;
