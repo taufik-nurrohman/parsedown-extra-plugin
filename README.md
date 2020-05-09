@@ -95,6 +95,17 @@ $Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
 };
 ~~~
 
+### Automatic Figure Elements
+
+Every image markup that appears alone in a paragraph will be automatically converted into a figure element with a caption in it as long as the image element has a `title` attribute that is not empty.
+
+~~~ .php
+$Parsedown->figuresEnabled = true;
+$Parsedown->figureAttributes = array('class' => 'image');
+
+$Parsedown->imageAttributesOnParent = array('class', 'id');
+~~~
+
 ### Custom Code Block Class Format
 
 ~~~ .php
@@ -131,7 +142,7 @@ $Parsedown->blockCodeHtml = function($Html, $Attributes, &$Element) {
 ### Put `<code>` Attributes on `<pre>` Element
 
 ~~~ .php
-$Parsedown->blockCodeAttributesOnParent = true;
+$Parsedown->codeAttributesOnParent = true;
 ~~~
 
 ### Custom Quote Block Class

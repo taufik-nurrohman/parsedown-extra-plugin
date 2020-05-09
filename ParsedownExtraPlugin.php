@@ -27,8 +27,6 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $blockCodeAttributes = array();
 
-    public $blockCodeAttributesOnParent = false;
-
     public $blockCodeClassFormat = 'language-%s';
 
     public $blockCodeHtml = null;
@@ -39,7 +37,13 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $codeAttributes = array();
 
+    public $codeAttributesOnParent = false;
+
     public $codeHtml = null;
+
+    public $figureAttributes = array();
+
+    public $figuresEnabled = false;
 
     public $footnoteAttributes = array();
 
@@ -60,6 +64,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     public $headerText = null;
 
     public $imageAttributes = array();
+
+    public $imageAttributesOnParent = false;
 
     public $linkAttributes = array();
 
@@ -90,11 +96,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (version_compare(parent::version, '0.8.0-beta-1') < 0) {
             throw new Exception('ParsedownExtraPlugin requires a later version of Parsedown');
         }
+        $this->BlockTypes['!'][] = 'Image';
         parent::__construct();
     }
 
     protected function blockAbbreviation($Line) {
-        # Allow empty abbreviations
+        // Allow empty abbreviations
         if (preg_match('/^\*\[(.+?)\]:[ ]*$/', $Line['text'], $matches)) {
             $this->DefinitionData['Abbreviation'][$matches[1]] = null;
             return array('hidden' => true);
@@ -105,10 +112,18 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     protected function blockCodeComplete($Block) {
         $this->doSetAttributes($Block['element']['element'], $this->blockCodeAttributes);
         $this->doSetContent($Block['element']['element'], $this->blockCodeHtml, true);
-        # Put code attributes on parent tag
-        if ($this->blockCodeAttributesOnParent) {
-            $Block['element']['attributes'] = $Block['element']['element']['attributes'];
-            unset($Block['element']['element']['attributes']);
+        // Put code attributes on parent element
+        if ($this->codeAttributesOnParent) {
+            if ($this->codeAttributesOnParent === true) {
+                // $this->codeAttributesOnParent = array_keys($Block['element']['element']['attributes']);
+                $this->codeAttributesOnParent = array('class', 'id');
+            }
+            foreach ((array) $this->codeAttributesOnParent as $name) {
+                if (isset($Block['element']['element']['attributes'][$name])) {
+                    $Block['element']['attributes'][$name] = $Block['element']['element']['attributes'][$name];
+                    unset($Block['element']['element']['attributes'][$name]);
+                }
+            }
         }
         $Block['element']['element']['rawHtml'] = $Block['element']['element']['text'];
         $Block['element']['element']['allowRawHtmlInSafeMode'] = true;
@@ -117,12 +132,12 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     protected function blockFencedCode($Line) {
-        # Re-enable the multiple class name feature
+        // Re-enable the multiple class name feature
         $Line['text'] = strtr(trim($Line['text']), array(
             ' ' => "\x1A",
             '.' => "\x1A."
         ));
-        # Enable custom attribute syntax on code block
+        // Enable custom attribute syntax on code block
         $Attributes = array();
         if (strpos($Line['text'], '{') !== false && substr($Line['text'], -1) === '}') {
             $Parts = explode('{', $Line['text'], 2);
@@ -169,6 +184,61 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         $Level = strspn($Line['text'], '#');
         $this->doSetAttributes($Block['element'], $this->headerAttributes, array($Level));
         $this->doSetContent($Block['element'], $this->headerText, false, 'argument', array($Level));
+        return $Block;
+    }
+
+    protected function blockImage($Block) {
+        if (!$this->figuresEnabled) {
+            return;
+        }
+        // Match exactly a single image syntax in a paragraph (with optional custom attributes)
+        if (isset($Block['text']) && preg_match('/^\!\[([^\n]*?)\](\[([^\n]*?)\]|\(([^\n]*?)\))(\s*\{([^\n]*?)\})?$/', $Block['text'])) {
+            $Inline = $this->inlineImage($Block);
+            // Make sure we have title attribute to be used as the image caption
+            if (!empty($Inline['element']['attributes']['title'])) {
+                $Caption = $this->line($Inline['element']['attributes']['title']);
+                $Block['element'] = array(
+                    'name' => 'figure',
+                    'attributes' => array(),
+                    'elements' => array(null, array(
+                            'element' => array(
+                                'name' => 'figcaption',
+                                'attributes' => array(),
+                                'rawHtml' => $Caption
+                            )
+                        )
+                    )
+                );
+                unset($Inline['element']['attributes']['title']);
+                $this->doSetAttributes($Block['element'], $this->figureAttributes);
+                if ($this->imageAttributesOnParent) {
+                    if ($this->imageAttributesOnParent === true) {
+                        $this->imageAttributesOnParent = array_keys($Inline['element']['attributes']);
+                    }
+                    foreach ((array) $this->imageAttributesOnParent as $name) {
+                        if (isset($Inline['element']['attributes'][$name])) {
+                            if ($name === 'class' && isset($Block['element']['attributes'][$name])) {
+                                // Merge classes
+                                $Block['element']['attributes'][$name] .= ' ' . $Inline['element']['attributes'][$name];
+                                $classes = explode(' ', $Block['element']['attributes'][$name]);
+                                sort($classes);
+                                $Block['element']['attributes'][$name] = implode(' ', array_unique(array_filter($classes)));
+                                unset($Inline['element']['attributes'][$name]);
+                                continue;
+                            }
+                            $Block['element']['attributes'][$name] = $Inline['element']['attributes'][$name];
+                            unset($Inline['element']['attributes'][$name]);
+                        }
+                    }
+                }
+                $Block['element']['elements'][0] = $Inline;
+                return $Block;
+            }
+        }
+        return;
+    }
+
+    protected function blockImageComplete($Block) {
         return $Block;
     }
 
@@ -390,7 +460,9 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             // `<a href="data:text/html,asdf">`
             strpos($Link, 'data:') === 0 ||
             // `<a href="javascript:;">`
-            strpos($Link, 'javascript:') === 0
+            strpos($Link, 'javascript:') === 0 ||
+            // `<a href="mailto:as@df">`
+            strpos($Link, 'mailto:') === 0
         ) {
             return true;
         }
@@ -418,7 +490,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     protected function parseAttributeData($attributeString) {
-        # Allow compact attributes
+        // Allow compact attributes
         $attributeString = strtr($attributeString, array(
             '#' => ' #',
             '.' => ' .'

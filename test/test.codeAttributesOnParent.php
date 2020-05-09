@@ -20,4 +20,4 @@ Lorem ipsum dolor sit amet.
 
 S;
 
-$Parsedown->blockCodeAttributesOnParent = true;
+$Parsedown->codeAttributesOnParent = true;

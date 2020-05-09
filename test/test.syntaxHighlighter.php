@@ -3,7 +3,7 @@
 $Text = <<<S
 
 ~~~
-for (\$i = 0, j = \count(\$code); \$i < \$j; ++\$i) {
+for (\$i = 0, \$j = count(\$code); \$i < \$j; ++\$i) {
     yield \$i => '&#' . \$code[\$i] . ';';
 }
 ~~~

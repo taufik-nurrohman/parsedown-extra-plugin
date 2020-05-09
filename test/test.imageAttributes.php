@@ -2,15 +2,15 @@
 
 $Text = <<<S
 
-Lorem ipsum ![HTML Image][1] dolor ![API Image](http://example.com/api.jpg) sit ![PHP Image][wow] amet.
+Lorem ipsum ![HTML Image][1] dolor ![API Image](https://via.placeholder.com/125x125) sit ![PHP Image][wow] amet.
 
-[1]: http://example.com/html.jpg
+[1]: https://via.placeholder.com/125x125
 
 S;
 
 $Parsedown->referenceData = array(
     'wow' => array(
-        'url' => 'http://example.com/php.jpg',
+        'url' => 'https://via.placeholder.com/125x125/333333/888888',
         'title' => 'PHP: Hypertext Preprocessor'
     )
 );
