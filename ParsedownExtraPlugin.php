@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.2.0';
+    const version = '1.3.0';
 
 
     # config
@@ -187,59 +187,84 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         return $Block;
     }
 
-    protected function blockImage($Block) {
+    protected function blockImage($Line, array $Block) {
         if (!$this->figuresEnabled) {
             return;
         }
-        // Match exactly a single image syntax in a paragraph (with optional custom attributes)
-        if (isset($Block['text']) && preg_match('/^\!\[([^\n]*?)\](\[([^\n]*?)\]|\(([^\n]*?)\))(\s*\{([^\n]*?)\})?$/', $Block['text'])) {
-            $Inline = $this->inlineImage($Block);
-            // Make sure we have title attribute to be used as the image caption
-            if (!empty($Inline['element']['attributes']['title'])) {
-                $Caption = $this->line($Inline['element']['attributes']['title']);
-                $Block['element'] = array(
+        // Match exactly a single image syntax in a paragraph (with optional custom attributes, and optional double space)
+        if (preg_match('/^\!\[([^\n]*?)\](\[([^\n]*?)\]|\(([^\n]*?)\))(\s*\{([^\n]*?)\})?([ ]{2})?$/', $Line['text'])) {
+            $Block = array(
+                'description' => "",
+                'element' => array(
                     'name' => 'figure',
                     'attributes' => array(),
-                    'elements' => array(null, array(
-                            'element' => array(
-                                'name' => 'figcaption',
-                                'attributes' => array(),
-                                'rawHtml' => $Caption
-                            )
-                        )
+                    'elements' => array(
+                        $this->inlineImage($Line)
                     )
-                );
-                unset($Inline['element']['attributes']['title']);
-                $this->doSetAttributes($Block['element'], $this->figureAttributes);
-                if ($this->imageAttributesOnParent) {
-                    if ($this->imageAttributesOnParent === true) {
-                        $this->imageAttributesOnParent = array_keys($Inline['element']['attributes']);
-                    }
-                    foreach ((array) $this->imageAttributesOnParent as $name) {
-                        if (isset($Inline['element']['attributes'][$name])) {
-                            if ($name === 'class' && isset($Block['element']['attributes'][$name])) {
-                                // Merge classes
-                                $Block['element']['attributes'][$name] .= ' ' . $Inline['element']['attributes'][$name];
-                                $classes = explode(' ', $Block['element']['attributes'][$name]);
-                                sort($classes);
-                                $Block['element']['attributes'][$name] = implode(' ', array_unique(array_filter($classes)));
-                                unset($Inline['element']['attributes'][$name]);
-                                continue;
-                            }
-                            $Block['element']['attributes'][$name] = $Inline['element']['attributes'][$name];
-                            unset($Inline['element']['attributes'][$name]);
-                        }
-                    }
-                }
-                $Block['element']['elements'][0] = $Inline;
-                return $Block;
-            }
+                )
+            );
+            $this->doSetAttributes($Block['element'], $this->figureAttributes);
+            return $Block;
         }
         return;
     }
 
     protected function blockImageComplete($Block) {
+        if (!empty($Block['description'])) {
+            $description = $Block['description'];
+            $Block['element']['elements'][] = array(
+                'name' => 'figcaption',
+                'rawHtml' => $this->{strpos($description, "\n\n") === false ? 'line' : 'text'}(trim($description, "\n"))
+            );
+            // unset($Block['description']);
+        }
+        if ($this->imageAttributesOnParent) {
+            $Inline = $Block['element']['elements'][0];
+            if ($this->imageAttributesOnParent === true) {
+                $this->imageAttributesOnParent = array_keys($Inline['element']['attributes']);
+            }
+            foreach ((array) $this->imageAttributesOnParent as $name) {
+                if (isset($Inline['element']['attributes'][$name])) {
+                    // Merge class names
+                    if (
+                        $name === 'class' &&
+                        isset($Block['element']['attributes'][$name]) &&
+                        isset($Inline['element']['attributes'][$name])
+                    ) {
+                        $classes = array_merge(
+                            explode(' ', $Block['element']['attributes'][$name]),
+                            explode(' ', $Inline['element']['attributes'][$name])
+                        );
+                        sort($classes);
+                        $Block['element']['attributes']['class'] = implode(' ', array_unique(array_filter($classes)));
+                        unset($Block['element']['elements'][0]['element']['attributes'][$name]);
+                        continue;
+                    }
+                    $Block['element']['attributes'][$name] = $Inline['element']['attributes'][$name];
+                    unset($Block['element']['elements'][0]['element']['attributes'][$name]);
+                }
+            }
+        }
         return $Block;
+    }
+
+    protected function blockImageContinue($Line, array $Block) {
+        if (isset($Block['complete'])) {
+            return;
+        }
+        if (isset($Block['interrupted'])) {
+            $Block['description'] .= "\n";
+            unset($Block['interrupted']);
+        }
+        if ($Line['indent'] === 0) {
+            $Block['complete'] = true;
+            return;
+        }
+        if ($Line['indent'] > 0 && $Line['indent'] < 4) {
+            $Block['description'] .= "\n" . $Line['text'];
+            return $Block;
+        }
+        return;
     }
 
     protected function blockQuoteComplete($Block) {

@@ -97,7 +97,7 @@ $Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
 
 ### Automatic Figure Elements
 
-Every image markup that appears alone in a paragraph will be automatically converted into a figure element with a caption in it as long as the image element has a `title` attribute that is not empty.
+Every image markup that appears alone in a paragraph will be converted into a figure element automatically.
 
 ~~~ .php
 $Parsedown->figuresEnabled = true;
@@ -105,6 +105,31 @@ $Parsedown->figureAttributes = array('class' => 'image');
 
 $Parsedown->imageAttributesOnParent = array('class', 'id');
 ~~~
+
+To add a caption below the image, prepend at least one space but less than four spaces to turn the paragraph sequence that comes after the image into an image caption.
+
+~~~ .markdown
+This is a paragraph.
+
+![Image](/path/to/image.jpg)
+ Image caption.
+
+This is a paragraph.
+
+![Image](/path/to/image.jpg)
+
+ Image caption in a paragraph tag.
+
+This is a paragraph.
+
+![Image](/path/to/image.jpg)
+
+    This is a code block.
+
+This is a paragraph.
+~~~
+
+FYI, this format is also a valid format for average Markdown files. And so, it will degraded gracefully when parsed by other Markdown converters.
 
 ### Custom Code Block Class Format
 
