@@ -5,6 +5,7 @@
   "homepage": "https://github.com/taufik-nurrohman/parsedown-extra-plugin",
   "type": "library",
   "license": "MIT",
+  "minimum-stability": "dev",
   "authors": [
     {
       "name": "Taufik Nurrohman",
