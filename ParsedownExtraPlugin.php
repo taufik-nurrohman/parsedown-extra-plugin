@@ -118,10 +118,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
                 // $this->codeAttributesOnParent = array_keys($Block['element']['element']['attributes']);
                 $this->codeAttributesOnParent = array('class', 'id');
             }
-            foreach ((array) $this->codeAttributesOnParent as $name) {
-                if (isset($Block['element']['element']['attributes'][$name])) {
-                    $Block['element']['attributes'][$name] = $Block['element']['element']['attributes'][$name];
-                    unset($Block['element']['element']['attributes'][$name]);
+            foreach ((array) $this->codeAttributesOnParent as $Name) {
+                if (isset($Block['element']['element']['attributes'][$Name])) {
+                    $Block['element']['attributes'][$Name] = $Block['element']['element']['attributes'][$Name];
+                    unset($Block['element']['element']['attributes'][$Name]);
                 }
             }
         }
@@ -191,8 +191,8 @@ class ParsedownExtraPlugin extends ParsedownExtra {
         if (!$this->figuresEnabled) {
             return;
         }
-        // Match exactly a single image syntax in a paragraph (with optional custom attributes, and optional double space)
-        if (preg_match('/^\!\[([^\n]*?)\](\[([^\n]*?)\]|\(([^\n]*?)\))(\s*\{([^\n]*?)\})?([ ]{2})?$/', $Line['text'])) {
+        // Match exactly an image syntax in a paragraph (with optional custom attributes, and optional hard break marker)
+        if (preg_match('/^\!\[[^\n]*?\](\[[^\n]*?\]|\([^\n]*?\))(\s*\{' . $this->regexAttribute . '+?\})?([ ]{2})?$/', $Line['text'])) {
             $Block = array(
                 'description' => "",
                 'element' => array(
@@ -211,10 +211,10 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     protected function blockImageComplete($Block) {
         if (!empty($Block['description'])) {
-            $description = $Block['description'];
+            $Description = $Block['description'];
             $Block['element']['elements'][] = array(
                 'name' => 'figcaption',
-                'rawHtml' => $this->{strpos($description, "\n\n") === false ? 'line' : 'text'}(trim($description, "\n"))
+                'rawHtml' => $this->{strpos($Description, "\n\n") === false ? 'line' : 'text'}(trim($Description, "\n"))
             );
             // unset($Block['description']);
         }
@@ -223,25 +223,25 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             if ($this->imageAttributesOnParent === true) {
                 $this->imageAttributesOnParent = array_keys($Inline['element']['attributes']);
             }
-            foreach ((array) $this->imageAttributesOnParent as $name) {
-                if (isset($Inline['element']['attributes'][$name])) {
+            foreach ((array) $this->imageAttributesOnParent as $Name) {
+                if (isset($Inline['element']['attributes'][$Name])) {
                     // Merge class names
                     if (
-                        $name === 'class' &&
-                        isset($Block['element']['attributes'][$name]) &&
-                        isset($Inline['element']['attributes'][$name])
+                        $Name === 'class' &&
+                        isset($Block['element']['attributes'][$Name]) &&
+                        isset($Inline['element']['attributes'][$Name])
                     ) {
-                        $classes = array_merge(
-                            explode(' ', $Block['element']['attributes'][$name]),
-                            explode(' ', $Inline['element']['attributes'][$name])
+                        $Classes = array_merge(
+                            explode(' ', $Block['element']['attributes'][$Name]),
+                            explode(' ', $Inline['element']['attributes'][$Name])
                         );
-                        sort($classes);
-                        $Block['element']['attributes']['class'] = implode(' ', array_unique(array_filter($classes)));
-                        unset($Block['element']['elements'][0]['element']['attributes'][$name]);
+                        sort($Classes);
+                        $Block['element']['attributes']['class'] = implode(' ', array_unique(array_filter($Classes)));
+                        unset($Block['element']['elements'][0]['element']['attributes'][$Name]);
                         continue;
                     }
-                    $Block['element']['attributes'][$name] = $Inline['element']['attributes'][$name];
-                    unset($Block['element']['elements'][0]['element']['attributes'][$name]);
+                    $Block['element']['attributes'][$Name] = $Inline['element']['attributes'][$Name];
+                    unset($Block['element']['elements'][0]['element']['attributes'][$Name]);
                 }
             }
         }
