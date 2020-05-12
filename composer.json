@@ -1,7 +1,16 @@
 {
-  "name": "taufik-nurrohman/parsedown-extra-plugin",
+  "name": "@taufik-nurrohman/parsedown-extra-plugin",
   "description": "Configurable Markdown to HTML converter with Parsedown Extra.",
-  "keywords": ["markdown", "markdown extra", "parser", "parsedown"],
+  "keywords": [
+    "extension",
+    "extra",
+    "markdown",
+    "markdown extra",
+    "markdown extra extension",
+    "parsedown",
+    "parsedown extra",
+    "parsedown extra extension"
+  ],
   "homepage": "https://github.com/taufik-nurrohman/parsedown-extra-plugin",
   "type": "library",
   "license": "MIT",
