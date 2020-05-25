@@ -101,7 +101,7 @@ Every image markup that appears alone in a paragraph will be converted into a fi
 
 ~~~ .php
 $Parsedown->figuresEnabled = true;
-$Parsedown->figureAttributes = array('class' => 'image');
+$Parsedown->figureAttributes = ['class' => 'image'];
 
 $Parsedown->imageAttributesOnParent = array('class', 'id');
 ~~~
@@ -129,7 +129,7 @@ This is a paragraph.
 This is a paragraph.
 ~~~
 
-FYI, this format is also a valid format for average Markdown files. And so, it will degraded gracefully when parsed by other Markdown converters.
+FYI, this format is also valid for average Markdown files. And so, it will degraded gracefully when parsed by other Markdown converters.
 
 ### Custom Code Block Class Format
 
