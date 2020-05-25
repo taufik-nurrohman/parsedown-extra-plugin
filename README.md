@@ -103,7 +103,7 @@ Every image markup that appears alone in a paragraph will be converted into a fi
 $Parsedown->figuresEnabled = true;
 $Parsedown->figureAttributes = ['class' => 'image'];
 
-$Parsedown->imageAttributesOnParent = array('class', 'id');
+$Parsedown->imageAttributesOnParent = ['class', 'id'];
 ~~~
 
 To add a caption below the image, prepend at least one space but less than four spaces to turn the paragraph sequence that comes after the image into an image caption.
