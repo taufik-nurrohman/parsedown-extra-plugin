@@ -27,7 +27,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $blockCodeAttributes = array();
 
-    public $blockCodeClassFormat = 'language-%s';
+    public $blockCodeClassFormat = '%s';
 
     public $blockCodeHtml = null;
 
