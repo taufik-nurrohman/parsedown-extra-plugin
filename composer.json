@@ -1,7 +1,23 @@
 {
-  "name": "taufik-nurrohman/parsedown-extra-plugin",
+  "authors": [
+    {
+      "name": "Taufik Nurrohman",
+      "homepage": "https://github.com/taufik-nurrohman",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-0": {"ParsedownExtraPlugin": ""}
+  },
   "description": "Configurable Markdown to HTML converter with Parsedown Extra.",
-  "keywords": [
+  "funding": [
+    {
+      "type": "other",
+      "url": "https://paypal.me/tatautaufik"
+    }
+  ],
+  "homepage": "https://github.com/taufik-nurrohman/parsedown-extra-plugin",
+  "keywords": {
     "extension",
     "extra",
     "markdown",
@@ -10,21 +26,16 @@
     "parsedown",
     "parsedown extra",
     "parsedown extra extension"
-  ],
-  "homepage": "https://github.com/taufik-nurrohman/parsedown-extra-plugin",
-  "type": "library",
+  },
   "license": "MIT",
   "minimum-stability": "dev",
-  "authors": [
-    {
-      "name": "Taufik Nurrohman",
-      "homepage": "https://github.com/taufik-nurrohman/parsedown-extra-plugin"
-    }
-  ],
+  "name": "taufik-nurrohman/parsedown-extra-plugin",
   "require": {
-    "erusev/parsedown-extra": "~0.8"
+    "erusev/parsedown-extra": "0.8.0"
   },
-  "autoload": {
-    "psr-0": {"ParsedownExtraPlugin": ""}
-  }
+  "support": {
+    "docs": "https://github.com/taufik-nurrohman/parsedown-extra-plugin#readme",
+    "issues": "https://github.com/taufik-nurrohman/parsedown-extra-plugin/issues"
+  },
+  "type": "library"
 }

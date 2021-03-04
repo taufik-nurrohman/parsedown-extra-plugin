@@ -1,3 +1,4 @@
+<?php error_reporting(E_ALL); ?>
 <!DOCTYPE html>
 <html dir="ltr">
   <head>
@@ -8,9 +9,7 @@
   <body><?php
 
 if (isset($_GET['file']) && is_file(__DIR__ . '/test/test.' . $_GET['file'] . '.php')) {
-    require __DIR__ . '/test/Parsedown.php';
-    require __DIR__ . '/test/ParsedownExtra.php';
-    require __DIR__ . '/ParsedownExtraPlugin.php';
+    require __DIR__ . '/../../autoload.php';
     $Parsedown = new ParsedownExtraPlugin;
     $Text = "";
     require __DIR__ . '/test/test.' . $_GET['file'] . '.php';

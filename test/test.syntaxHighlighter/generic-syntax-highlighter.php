@@ -1,11 +1,11 @@
 <?php
 
-/*! <https://github.com/tovic/generic-syntax-highlighter> */
+/*! <https://github.com/taufik-nurrohman/generic-syntax-highlighter> */
 
 function SH($s) {
     $s = str_replace(['&quot;', '&apos;', '&#34;', '&#39;'], ['"', "'", '"', "'"], $s);
     return '<span style="color:#000000">' . preg_replace_callback('/' . implode('|', [
-        '<.*?>', // "real" tags
+        '<.*?>', // embedded HTML tags
         '&lt;!\-\-[\s\S]*?\-\-&gt;', // HTML comments
         '\/\/[^\n]+', // comments
         '#\s+[^\n]+', // comments

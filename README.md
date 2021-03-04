@@ -3,10 +3,7 @@ Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
 
 > Configurable Markdown to HTML converter with Parsedown Extra.
 
-
-<!-- ![Parsedown](https://i.imgur.com/yE8afYV.png) -->
-
-<p align="center"><img alt="Parsedown" src="https://i.imgur.com/fKVY6Kz.png" width="240" /></p>
+![Parsedown Logo](https://user-images.githubusercontent.com/1669261/109982015-10e2c300-7d34-11eb-93bd-5f103b9d5165.png)
 
 
 Contents
@@ -20,12 +17,37 @@ Contents
 Usage
 -----
 
+### Manual
+
 Include `ParsedownExtraPlugin.php` just after the `Parsedown.php` and `ParsedownExtra.php` file:
 
 ~~~ .php
 require 'Parsedown.php';
 require 'ParsedownExtra.php';
 require 'ParsedownExtraPlugin.php';
+
+# Create
+$Parsedown = new ParsedownExtraPlugin;
+
+# Configure
+$Parsedown->voidElementSuffix = '>'; // HTML5
+
+# Use
+echo $Parsedown->text('# Header {.sth}');
+~~~
+
+### Composer
+
+From the command line interface, navigate to your project folder then run this command:
+
+~~~ .sh
+composer require taufik-nurrohman/parsedown-extra-plugin
+~~~
+
+From the file manager interface, create an `index.php` file in your project folder then require the auto-loader file:
+
+~~~ .php
+require 'vendor/autoload.php';
 
 # Create
 $Parsedown = new ParsedownExtraPlugin;
@@ -146,21 +168,21 @@ $Parsedown->blockCodeHtml = '<span class="my-code-block">%s</span>';
 
 ~~~ .php
 // <https://github.com/scrivo/highlight.php>
-function doApplyHighlighter(string $Html, array $ClassList, &$Element) {
+function doApplyHighlighter(string $Text, array $ClassList, &$Element) {
     $Highlight = new \Highlight\Highlighter;
     $Highlight->setAutodetectLanguages($ClassList);
-    $Html = $Highlight->highlightAuto($Html);
-    $Element['attributes']['class'] = 'hljs ' . $Html->language;
-    return $Html->value;
+    $Highlighted = $Highlight->highlightAuto($Text);
+    $Element['attributes']['class'] = 'hljs ' . $Highlighted->language;
+    return $Highlighted->value;
 }
 
-$Parsedown->codeHtml = function($Html, $Attributes, &$Element) {
-    return doApplyHighlighter($Html, [], $Element);
+$Parsedown->codeHtml = function($Text, $Attributes, &$Element) {
+    return doApplyHighlighter($Text, [], $Element);
 };
 
-$Parsedown->blockCodeHtml = function($Html, $Attributes, &$Element) {
-    $ClassList = explode(' ', $Attributes['class'] ?? "");
-    return doApplyHighlighter($Html, $ClassList, $Element);
+$Parsedown->blockCodeHtml = function($Text, $Attributes, &$Element) {
+    $ClassList = array_filter(explode(' ', $Attributes['class'] ?? ""));
+    return doApplyHighlighter($Text, $ClassList, $Element);
 };
 ~~~
 

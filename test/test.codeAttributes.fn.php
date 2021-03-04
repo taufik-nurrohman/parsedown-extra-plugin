@@ -8,8 +8,8 @@ Foo bar `baz` qux.
 
 S;
 
-$Parsedown->codeAttributes = function($Html, $Attributes, &$Element) {
-    if ($Html === 'baz') {
+$Parsedown->codeAttributes = function($Text, $Attributes, &$Element) {
+    if ($Text === 'baz') {
         return array('class' => 'code-baz');
     }
 };
