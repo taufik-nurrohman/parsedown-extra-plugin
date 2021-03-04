@@ -28,6 +28,7 @@
     "parsedown extra extension"
   ],
   "license": "MIT",
+  "minimum-stability": "dev",
   "name": "taufik-nurrohman/parsedown-extra-plugin",
   "require": {
     "erusev/parsedown": "~0.8.0-beta-6",
