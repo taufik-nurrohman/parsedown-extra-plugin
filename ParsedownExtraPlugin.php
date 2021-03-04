@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.3.3';
+    const version = '1.3.4';
 
     public $abbreviationData = array();
 
