@@ -17,7 +17,7 @@
     }
   ],
   "homepage": "https://github.com/taufik-nurrohman/parsedown-extra-plugin",
-  "keywords": {
+  "keywords": [
     "extension",
     "extra",
     "markdown",
@@ -26,7 +26,7 @@
     "parsedown",
     "parsedown extra",
     "parsedown extra extension"
-  },
+  ],
   "license": "MIT",
   "minimum-stability": "dev",
   "name": "taufik-nurrohman/parsedown-extra-plugin",
