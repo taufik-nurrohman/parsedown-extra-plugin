@@ -38,6 +38,14 @@ echo $Parsedown->text('# Header {.sth}');
 
 ### Composer
 
+From the file manager interface, create a `composer.json` file in your project folder, then add this content:
+
+~~~ .json
+{
+  "minimum-stability": "dev"
+}
+~~~
+
 From the command line interface, navigate to your project folder then run this command:
 
 ~~~ .sh
