@@ -6,14 +6,6 @@ Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
 ![Parsedown Logo](https://user-images.githubusercontent.com/1669261/109982015-10e2c300-7d34-11eb-93bd-5f103b9d5165.png)
 
 
-Contents
---------
-
- - [Usage](#usage)
- - [Features](#features)
- - [Property Aliases as Methods](#property-aliases-as-methods)
-
-
 Usage
 -----
 
@@ -21,7 +13,7 @@ Usage
 
 Include `ParsedownExtraPlugin.php` just after the `Parsedown.php` and `ParsedownExtra.php` file:
 
-~~~ .php
+~~~ php
 require 'Parsedown.php';
 require 'ParsedownExtra.php';
 require 'ParsedownExtraPlugin.php';
@@ -40,7 +32,7 @@ echo $Parsedown->text('# Header {.sth}');
 
 From the file manager interface, create a `composer.json` file in your project folder, then add this content:
 
-~~~ .json
+~~~ json
 {
   "minimum-stability": "dev"
 }
@@ -48,13 +40,13 @@ From the file manager interface, create a `composer.json` file in your project f
 
 From the command line interface, navigate to your project folder then run this command:
 
-~~~ .sh
+~~~ sh
 composer require taufik-nurrohman/parsedown-extra-plugin
 ~~~
 
 From the file manager interface, create an `index.php` file in your project folder then require the auto-loader file:
 
-~~~ .php
+~~~ php
 require 'vendor/autoload.php';
 
 # Create
@@ -73,13 +65,13 @@ Features
 
 ### HTML or XHTML
 
-~~~ .php
+~~~ php
 $Parsedown->voidElementSuffix = '>'; // HTML5
 ~~~
 
 ### Predefined Abbreviations
 
-~~~ .php
+~~~ php
 $Parsedown->abbreviationData = [
     'CSS' => 'Cascading Style Sheet',
     'HTML' => 'Hyper Text Markup Language',
@@ -89,7 +81,7 @@ $Parsedown->abbreviationData = [
 
 ### Predefined Reference Links and Images
 
-~~~ .php
+~~~ php
 $Parsedown->referenceData = [
     'mecha-cms' => [
         'url' => 'https://mecha-cms.com',
@@ -104,7 +96,7 @@ $Parsedown->referenceData = [
 
 ### Automatic `rel="nofollow"` Attribute on External Links
 
-~~~ .php
+~~~ php
 $Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) {
     if (!$Internal) {
         return [
@@ -118,7 +110,7 @@ $Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) 
 
 ### Automatic `id` Attribute on Headers
 
-~~~ .php
+~~~ php
 $Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
     $Id = $Attributes['id'] ?? trim(preg_replace('/[^a-z\d\x{4e00}-\x{9fa5}]+/u', '-', strtolower($Text)), '-');
     return ['id' => $Id];
@@ -129,7 +121,7 @@ $Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
 
 Every image markup that appears alone in a paragraph will be converted into a figure element automatically.
 
-~~~ .php
+~~~ php
 $Parsedown->figuresEnabled = true;
 $Parsedown->figureAttributes = ['class' => 'image'];
 
@@ -138,7 +130,7 @@ $Parsedown->imageAttributesOnParent = ['class', 'id'];
 
 To add a caption below the image, prepend at least one space but less than four spaces to turn the paragraph sequence that comes after the image into an image caption.
 
-~~~ .markdown
+~~~ markdown
 This is a paragraph.
 
 ![Image](/path/to/image.jpg)
@@ -163,18 +155,18 @@ FYI, this format is also valid for average Markdown files. And so, it will degra
 
 ### Custom Code Block Class Format
 
-~~~ .php
+~~~ php
 $Parsedown->blockCodeClassFormat = 'language-%s';
 ~~~
 
 ### Custom Code Block Contents
 
-~~~ .php
+~~~ php
 $Parsedown->codeHtml = '<span class="my-code">%s</span>';
 $Parsedown->blockCodeHtml = '<span class="my-code-block">%s</span>';
 ~~~
 
-~~~ .php
+~~~ php
 // <https://github.com/scrivo/highlight.php>
 function doApplyHighlighter(string $Text, array $ClassList, &$Element) {
     $Highlight = new \Highlight\Highlighter;
@@ -196,17 +188,17 @@ $Parsedown->blockCodeHtml = function($Text, $Attributes, &$Element) {
 
 ### Put `<code>` Attributes on `<pre>` Element
 
-~~~ .php
+~~~ php
 $Parsedown->codeAttributesOnParent = true;
 ~~~
 
 ### Custom Quote Block Class
 
-~~~ .php
+~~~ php
 $Parsedown->blockQuoteAttributes = ['class' => 'quote'];
 ~~~
 
-~~~ .php
+~~~ php
 $Parsedown->blockQuoteAttributes = function($Text, $Attributes, &$Element) {
     if (strpos($Text, '**Danger:** ') === 0) {
         return ['class' => 'alert alert-danger'];
@@ -220,13 +212,13 @@ $Parsedown->blockQuoteAttributes = function($Text, $Attributes, &$Element) {
 
 ### Custom Table Attributes
 
-~~~ .php
+~~~ php
 $Parsedown->tableAttributes = ['border' => 1];
 ~~~
 
 ### Custom Table Alignment Class
 
-~~~ .php
+~~~ php
 $Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Align) {
     return [
         'class' => $Align ? 'text-' . $Align : null,
@@ -237,7 +229,7 @@ $Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Ali
 
 ### Custom Footnote ID Format
 
-~~~ .php
+~~~ php
 $Parsedown->footnoteLinkAttributes = function($Number, $Attributes, &$Element, $Name) {
     return ['href' => '#to:' . $Name];
 };
@@ -257,19 +249,19 @@ $Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, &$E
 
 ### Custom Footnote Class
 
-~~~ .php
+~~~ php
 $Parsedown->footnoteAttributes = ['class' => 'notes'];
 ~~~
 
 ### Custom Footnote Link Text
 
-~~~ .php
+~~~ php
 $Parsedown->footnoteLinkHtml = '[%s]';
 ~~~
 
 ### Custom Footnote Back Link Text
 
-~~~ .php
+~~~ php
 $Parsedown->footnoteBackLinkHtml = '<i class="icon icon-back"></i>';
 ~~~
 
@@ -308,7 +300,7 @@ Property Aliases as Methods
 
 Property aliases are available as methods just to follow the way **Parsedown** set its configuration data. It uses PHP `__call` method to generate the class methods automatically:
 
-~~~ .php
+~~~ php
 // This is ...
 $Parsedown->setBlockCodeHtml(function() { ... });
 
