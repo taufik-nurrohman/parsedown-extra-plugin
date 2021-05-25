@@ -153,11 +153,13 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             // `~~~ {.php #foo}` → `<pre><code id="foo" class="php">`
             $Results = [];
             foreach ($Classes as $Class) {
-                if ($Class === "" || preg_match('/^' . strtr(preg_quote($this->blockCodeClassFormat), array('%s' => '\S+')) . '$/', $Class)) {
+                if ($Class === "" || $Class === strtr($this->blockCodeClassFormat, array('%s' => ""))) {
                     continue;
                 }
                 if ($Class[0] === '.') {
                     $Results[] = substr($Class, 1);
+                } else if (preg_match('/^' . strtr(preg_quote($this->blockCodeClassFormat), array('%s' => '\S+')) . '$/', $Class)) {
+                    $Results[] = $Class; // Do nothing!
                 } else {
                     $Results[] = sprintf($this->blockCodeClassFormat, $Class);
                 }
