@@ -312,7 +312,7 @@ $Parsedown->blockCodeHtml = function() { ... };
 Support
 -------
 
-I’m looking for digital agencies and web designers who are interested in trying out my content management system, [Mecha](https://mecha-cms.com). Mecha is a minimalist content management system for building simple websites ranging from web company profile to web log for personal branding. It is a file-based content management system and does not take up too much web hosting space so:
+I’m looking for digital agencies and web designers who are interested in trying out my content management system, [Mecha](https://github.com/mecha-cms). Mecha is a minimalist content management system for building simple websites ranging from web company profile to web log for personal branding. It is a file-based content management system and does not take up too much web hosting space so:
 
  1. From the client’s point of view, this can reduce their monthly hosting expenses.
  2. From the web designer’s point of view, this will increase your company’s profits.
