@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.3.5';
+    const version = '1.3.6';
 
     public $abbreviationData = array();
 
@@ -314,6 +314,9 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             $Args = array(is_numeric($Name) ? (float) $Name : $Name, $Count);
             $this->doSetAttributes($Element0, $this->footnoteBackReferenceAttributes, $Args);
             foreach ($Element0['elements'] as $Index1 => &$Element1) {
+                if (!isset($Element1['elements'])) {
+                    continue;
+                }
                 $Count = 0;
                 foreach ($Element1['elements'] as $Index2 => &$Element2) {
                     if (!isset($Element2['name']) || $Element2['name'] !== 'a') {
