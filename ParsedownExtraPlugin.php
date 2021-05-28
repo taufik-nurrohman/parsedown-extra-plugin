@@ -164,7 +164,11 @@ class ParsedownExtraPlugin extends ParsedownExtra {
                     $Results[] = sprintf($this->blockCodeClassFormat, $Class);
                 }
             }
-            $Block['element']['element']['attributes']['class'] = implode(' ', array_unique($Results));
+            if ($Results = array_unique($Results)) {
+                $Block['element']['element']['attributes']['class'] = implode(' ', $Results);
+            } else {
+                unset($Block['element']['element']['attributes']['class']);
+            }
         }
         return $Block;
     }

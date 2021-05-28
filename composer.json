@@ -1,4 +1,7 @@
 {
+  "archive": {
+    "exclude": ["/.git", "/test", "/test.php"]
+  },
   "authors": [
     {
       "name": "Taufik Nurrohman",
