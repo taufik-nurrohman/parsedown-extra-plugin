@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.3.6';
+    const version = '1.3.7';
 
     public $abbreviationData = array();
 
@@ -60,7 +60,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
 
     public $headerText = null;
 
-    public $imageAttributes = array();
+    public $imageAttributes = array('rel' => null, 'target' => null);
 
     public $imageAttributesOnParent = false;
 
