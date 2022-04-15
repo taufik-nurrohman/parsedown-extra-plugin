@@ -30,7 +30,7 @@ $Text = <<<S
  - [bar](//127.0.0.1/a?bar)
  - [baz](//127.0.0.1/a&qux)
  - [qux](//127.0.0.1/a#yo)
- 
+
 ---
 
  - [javascript](javascript:void(0))
