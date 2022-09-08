@@ -12,6 +12,6 @@ Lorem ipsum dolor sit amet. [^2]
 
 S;
 
-$Parsedown->footnoteLinkHtml = function($Number, $Attributes, &$Element, $Name, $Index) {
+$Parsedown->footnoteLinkHtml = function ($Number, $Attributes, &$Element, $Name, $Index) {
     return $Name . ':nth(' . $Index . ')';
 };

@@ -24,7 +24,7 @@ Header 2
 
 S;
 
-$Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
+$Parsedown->headerAttributes = function ($Text, $Attributes, &$Element, $Level) {
     if (isset($Attributes['id'])) {
         $Id = $Attributes['id'];
     } else {

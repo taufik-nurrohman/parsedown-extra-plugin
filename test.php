@@ -23,7 +23,7 @@ if (isset($_GET['file']) && is_file(__DIR__ . '/test/test.' . $_GET['file'] . '.
     echo $Html;
     echo '</div>';
     echo '<pre style="border:2px solid blue;padding:2em;white-space:pre-wrap;">';
-    echo preg_replace_callback('/&lt;.*?&gt;|&amp;#?[a-z\d]+;/', function($Matches) {
+    echo preg_replace_callback('/&lt;.*?&gt;|&amp;#?[a-z\d]+;/', static function ($Matches) {
         if (substr($Matches[0], -4) === '&gt;') {
             return '<span style="background:skyblue;color:blue;">' . $Matches[0] . '</span>';
         }

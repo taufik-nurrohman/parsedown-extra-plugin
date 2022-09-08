@@ -97,7 +97,7 @@ $Parsedown->referenceData = [
 ### Automatic `rel="nofollow"` Attribute on External Links
 
 ~~~ php
-$Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) {
+$Parsedown->linkAttributes = function ($Text, $Attributes, &$Element, $Internal) {
     if (!$Internal) {
         return [
             'rel' => 'nofollow',
@@ -111,7 +111,7 @@ $Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) 
 ### Automatic `id` Attribute on Headers
 
 ~~~ php
-$Parsedown->headerAttributes = function($Text, $Attributes, &$Element, $Level) {
+$Parsedown->headerAttributes = function ($Text, $Attributes, &$Element, $Level) {
     $Id = $Attributes['id'] ?? trim(preg_replace('/[^a-z\d\x{4e00}-\x{9fa5}]+/u', '-', strtolower($Text)), '-');
     return ['id' => $Id];
 };
@@ -176,11 +176,11 @@ function doApplyHighlighter(string $Text, array $ClassList, &$Element) {
     return $Highlighted->value;
 }
 
-$Parsedown->codeHtml = function($Text, $Attributes, &$Element) {
+$Parsedown->codeHtml = function ($Text, $Attributes, &$Element) {
     return doApplyHighlighter($Text, [], $Element);
 };
 
-$Parsedown->blockCodeHtml = function($Text, $Attributes, &$Element) {
+$Parsedown->blockCodeHtml = function ($Text, $Attributes, &$Element) {
     $ClassList = array_filter(explode(' ', $Attributes['class'] ?? ""));
     return doApplyHighlighter($Text, $ClassList, $Element);
 };
@@ -199,7 +199,7 @@ $Parsedown->blockQuoteAttributes = ['class' => 'quote'];
 ~~~
 
 ~~~ php
-$Parsedown->blockQuoteAttributes = function($Text, $Attributes, &$Element) {
+$Parsedown->blockQuoteAttributes = function ($Text, $Attributes, &$Element) {
     if (strpos($Text, '**Danger:** ') === 0) {
         return ['class' => 'alert alert-danger'];
     }
@@ -219,7 +219,7 @@ $Parsedown->tableAttributes = ['border' => 1];
 ### Custom Table Alignment Class
 
 ~~~ php
-$Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Align) {
+$Parsedown->tableColumnAttributes = function ($Text, $Attributes, &$Element, $Align) {
     return [
         'class' => $Align ? 'text-' . $Align : null,
         'style' => null // Remove inline styles
@@ -230,19 +230,19 @@ $Parsedown->tableColumnAttributes = function($Text, $Attributes, &$Element, $Ali
 ### Custom Footnote ID Format
 
 ~~~ php
-$Parsedown->footnoteLinkAttributes = function($Number, $Attributes, &$Element, $Name) {
+$Parsedown->footnoteLinkAttributes = function ($Number, $Attributes, &$Element, $Name) {
     return ['href' => '#to:' . $Name];
 };
 
-$Parsedown->footnoteReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
+$Parsedown->footnoteReferenceAttributes = function ($Number, $Attributes, &$Element, $Name, $Index) {
     return ['id' => 'from:' . $Name . '.' . $Index];
 };
 
-$Parsedown->footnoteBackLinkAttributes = function($Number, $Attributes, &$Element, $Name, $Index) {
+$Parsedown->footnoteBackLinkAttributes = function ($Number, $Attributes, &$Element, $Name, $Index) {
     return ['href' => '#from:' . $Name . '.' . $Index];
 };
 
-$Parsedown->footnoteBackReferenceAttributes = function($Number, $Attributes, &$Element, $Name, $Total) {
+$Parsedown->footnoteBackReferenceAttributes = function ($Number, $Attributes, &$Element, $Name, $Total) {
     return ['id' => 'to:' . $Name];
 };
 ~~~
@@ -302,10 +302,10 @@ Property aliases are available as methods just to follow the way **Parsedown** s
 
 ~~~ php
 // This is ...
-$Parsedown->setBlockCodeHtml(function() { ... });
+$Parsedown->setBlockCodeHtml(function () { ... });
 
 // ... equal to this
-$Parsedown->blockCodeHtml = function() { ... };
+$Parsedown->blockCodeHtml = function () { ... };
 ~~~
 
 

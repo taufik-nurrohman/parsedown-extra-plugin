@@ -27,7 +27,7 @@ S;
 
 require __DIR__ . '/test.syntaxHighlighter/generic-syntax-highlighter.php';
 
-$Parsedown->blockCodeHtml = function($Text, $Attributes, &$Element) {
+$Parsedown->blockCodeHtml = function ($Text, $Attributes, &$Element) {
     $Element['attributes']['class'] = 'language-html';
     $Element['attributes']['style'] = 'display: block; background: #def; border: 1px solid; padding: .5em .75em;';
     return SH($Text);

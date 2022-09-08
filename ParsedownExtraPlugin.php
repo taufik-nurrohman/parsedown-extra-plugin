@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.3.7';
+    const version = '1.3.8';
 
     public $abbreviationData = array();
 
@@ -524,7 +524,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
             '.' => ' .'
         ));
         if (strpos($attributeString, '="') !== false || strpos($attributeString, "='") !== false) {
-            $attributeString = preg_replace_callback('#([-\w]+=)(["\'])([^\n]*?)\2#', function($matches) {
+            $attributeString = preg_replace_callback('#([-\w]+=)(["\'])([^\n]*?)\2#', static function ($matches) {
                 $value = strtr($matches[3], array(
                     ' #' => '#',
                     ' .' => '.',

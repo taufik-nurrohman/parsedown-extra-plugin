@@ -60,7 +60,7 @@ $Text = <<<S
 
 S;
 
-$Parsedown->linkAttributes = function($Text, $Attributes, &$Element, $Internal) {
+$Parsedown->linkAttributes = function ($Text, $Attributes, &$Element, $Internal) {
     if (isset($Attributes['href'])) {
         if (!$Internal) {
             return array(

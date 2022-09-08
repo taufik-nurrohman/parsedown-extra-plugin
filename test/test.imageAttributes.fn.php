@@ -15,7 +15,7 @@ $Parsedown->referenceData = array(
     )
 );
 
-$Parsedown->imageAttributes = function($Text, $Attributes, &$Element, $Internal) {
+$Parsedown->imageAttributes = function ($Text, $Attributes, &$Element, $Internal) {
     $Any = array('class' => $Internal ? 'local-image' : 'remote-image');
     if (isset($Attributes['title'])) {
         $Any['width'] = 75;
