@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.3.8';
+    const version = '1.3.9';
 
     public $abbreviationData = array();
 
@@ -358,7 +358,7 @@ class ParsedownExtraPlugin extends ParsedownExtra {
     }
 
     private function doSetLink($Excerpt, $Function) {
-        if (!$Inline = call_user_func('parent::' . $Function, $Excerpt)) {
+        if (!$Inline = call_user_func(parent::class . '::' . $Function, $Excerpt)) {
             return;
         }
         $this->doSetAttributes($Inline['element'], $this->linkAttributes, array($this->isLocal($Inline['element'], 'href')));
