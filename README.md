@@ -128,9 +128,10 @@ $Parsedown->figureAttributes = ['class' => 'image'];
 $Parsedown->imageAttributesOnParent = ['class', 'id'];
 ~~~
 
-To add a caption below the image, prepend at least one space but less than four spaces to turn the paragraph sequence that comes after the image into an image caption.
+To add a caption below the image, prepend at least one space but less than four spaces to turn the paragraph sequence
+that comes after the image into an image caption.
 
-~~~ markdown
+~~~ md
 This is a paragraph.
 
 ![Image](/path/to/image.jpg)
@@ -151,7 +152,8 @@ This is a paragraph.
 This is a paragraph.
 ~~~
 
-FYI, this format is also valid for average Markdown files. And so, it will degraded gracefully when parsed by other Markdown converters.
+FYI, this format is also valid for average Markdown files. And so, it will degraded gracefully when parsed by other
+Markdown converters.
 
 ### Custom Code Block Class Format
 
@@ -298,23 +300,29 @@ Dot prefix in class name are now becomes optional, custom attributes syntax also
 Property Aliases as Methods
 ---------------------------
 
-Property aliases are available as methods just to follow the way **Parsedown** set its configuration data. It uses PHP `__call` method to generate the class methods automatically:
+Property aliases are available as methods just to follow the way **Parsedown** set its configuration data. It uses PHP
+`__call()` method to generate the class methods automatically:
 
 ~~~ php
-// This is ...
-$Parsedown->setBlockCodeHtml(function () { ... });
+// This is …
+$Parsedown->setBlockCodeHtml(function () { … });
 
-// ... equal to this
-$Parsedown->blockCodeHtml = function () { ... };
+// … equal to this
+$Parsedown->blockCodeHtml = function () { … };
 ~~~
 
 
 Support
 -------
 
-I’m looking for digital agencies and web designers who are interested in trying out my content management system, [Mecha](https://github.com/mecha-cms). Mecha is a minimalist content management system for building simple websites ranging from web company profile to web log for personal branding. It is a file-based content management system and does not take up too much web hosting space so:
+I’m looking for digital agencies and web designers who are interested in trying out my content management system,
+[Mecha](https://github.com/mecha-cms). Mecha is a minimalist content management system for building simple websites
+ranging from web company profile to web log for personal branding. It is a file-based content management system and does
+not take up too much web hosting space so:
 
  1. From the client’s point of view, this can reduce their monthly hosting expenses.
  2. From the web designer’s point of view, this will increase your company’s profits.
 
-I prefer designers who don’t really understand programming languages but understand the basics of creating web themes. So that my JavaScript and PHP skills can help you to solve the problems related to the back-end side features of your web project. Then, I can get rewarded when you use the panel feature on your clients’ projects.
+I prefer designers who don’t really understand programming languages but understand the basics of creating web themes.
+So that my JavaScript and PHP skills can help you to solve the problems related to the back-end side features of your
+web project. Then, I can get rewarded when you use the panel feature on your clients’ projects.
