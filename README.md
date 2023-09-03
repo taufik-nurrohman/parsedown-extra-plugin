@@ -4,7 +4,7 @@ Extension for [Parsedown Extra](https://github.com/erusev/parsedown-extra)
 > Configurable Markdown to HTML converter with Parsedown Extra.
 
 **Update 2023/09/03:** I will be retiring this project due to the lack of activity on the Parsedown project to date.
-There is actually a draft for [Parsedown version 2.0](https://github.com/erusev/parsedown/tree/2.0.x), but it seems
+There is actually a draft for [Parsedown version 2.0](https://github.com/erusev/parsedown/tree/2.0.x), but it seems that
 there has been no progress. I will consider refactoring when Parsedown version 2.0 is released, but I may no longer
 actively maintain this project as I am now shifting my focus to
 [my own Markdown Extra parser](https://github.com/taufik-nurrohman/markdown). It consists of a single file and uses the
