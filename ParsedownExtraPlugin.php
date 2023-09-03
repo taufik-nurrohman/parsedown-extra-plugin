@@ -9,7 +9,7 @@
 # http://erusev.com
 #
 # (c) Taufik Nurrohman
-# https://mecha-cms.com
+# https://taufik-nurrohman.com
 #
 # For the full license information, view the LICENSE file that was distributed
 # with this source code.
@@ -18,7 +18,7 @@
 
 class ParsedownExtraPlugin extends ParsedownExtra {
 
-    const version = '1.3.10';
+    const version = '1.3.11';
 
     public $abbreviationData = array();
 
